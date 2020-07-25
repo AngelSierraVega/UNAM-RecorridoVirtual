@@ -47,6 +47,7 @@
 
                 var camera, controls, scene, renderer;
                 
+                
                 /**
                  * Code for hemispheric light
                  * @edit 20-07-15
@@ -70,13 +71,14 @@
                 function init() {
 
                         scene = new THREE.Scene();
-                        //scene.background = new THREE.Color( 0xcccccc );
+                        scene.background = new THREE.Color( 0xcccccc );
                         /**
                         * Code for hemispheric light
                         * @edit 20-07-15
-                        */
-                        scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+                        * scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
                         scene.fog = new THREE.Fog( scene.background, 1, 5000 );
+                        */
+                        
                         //scene.fog = new THREE.FogExp2( 0xcccccc, 0.001 );
 
                         renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -102,7 +104,7 @@
                         controls.screenSpacePanning = false;
 
                         controls.minDistance = 1;
-                        controls.maxDistance = 300;
+                        controls.maxDistance = 1;
 
                         controls.maxPolarAngle = Math.PI;
 				
@@ -203,78 +205,8 @@
                         //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
                         
                         // lights
-                                /**
-                                * Code for hemispheric light
-                                * @edit 20-07-15
-                                */
-                                hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-				hemiLight.color.setHSL( 0.6, 1, 0.6 );
-				hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-				hemiLight.position.set( 0, 50, 0 );
-				//scene.add( hemiLight );
-				hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-				scene.add( hemiLightHelper );
-
-                        var light = new THREE.DirectionalLight( 0xcccccc);
-                        light.position.set(20, 100, 20);
-                        scene.add( light );
-                        light.castShadow = true;
-                        var dirLightHeper = new THREE.DirectionalLightHelper( light, 10 );
-                        scene.add( dirLightHeper );
-
-//                        var light = new THREE.DirectionalLight( 0xbbbbbb );
-//                        light.position.set( 200, 200, 200 );
-//                        scene.add( light );
-//                        light.castShadow = true;
-
                         var light = new THREE.AmbientLight( 0xffffff );
-                        //scene.add( light );
-                        
-                        //var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
-                        //scene.add( light );
-
-
-                        /**
-                        * Code for hemispheric light
-                        * @edit 20-07-15
-                        */
-                        // GROUND
-				var groundGeo = new THREE.PlaneBufferGeometry( 10000, 10000 );
-				var groundMat = new THREE.MeshLambertMaterial( { color: 0xffffff } );
-				groundMat.color.setHSL( 0.095, 1, 0.75 );
-
-				var ground = new THREE.Mesh( groundGeo, groundMat );
-				ground.position.y = - 330;
-				ground.rotation.x = - Math.PI / 2;
-				ground.receiveShadow = true;
-				scene.add( ground );
-
-				// SKYDOME
-				var vertexShader = document.getElementById( 'vertexShader' ).textContent;
-				var fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
-				var uniforms = {
-					"topColor": { value: new THREE.Color( 0x0077ff ) },
-					"bottomColor": { value: new THREE.Color( 0xffffff ) },
-					"offset": { value: 33 },
-					"exponent": { value: 0.6 }
-				};
-				uniforms[ "topColor" ].value.copy( hemiLight.color );
-
-				scene.fog.color.copy( uniforms[ "bottomColor" ].value );
-
-				var skyGeo = new THREE.SphereBufferGeometry( 4000, 32, 15 );
-				var skyMat = new THREE.ShaderMaterial( {
-					uniforms: uniforms,
-					vertexShader: vertexShader,
-					fragmentShader: fragmentShader,
-					side: THREE.BackSide
-				} );
-
-				var sky = new THREE.Mesh( skyGeo, skyMat );
-				scene.add( sky );
-                                
-                                
-                                
+                        scene.add( light );
 
                         window.addEventListener( 'resize', onWindowResize, false );
 

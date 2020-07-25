@@ -31,6 +31,7 @@
         </div>
 
         <script type="module">
+            
                 import * as THREE from '/UNAM/RecorridoVirtual/build/three.module.js';
                 
                 /**
@@ -75,7 +76,8 @@
                         * Code for hemispheric light
                         * @edit 20-07-15
                         */
-                        scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+                        //scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+                        scene.background = new THREE.Color( 'lightskyblue' );//https://en.wikipedia.org/wiki/X11_color_names
                         scene.fog = new THREE.Fog( scene.background, 1, 5000 );
                         //scene.fog = new THREE.FogExp2( 0xcccccc, 0.001 );
 
@@ -84,7 +86,7 @@
                         renderer.setSize( window.innerWidth, window.innerHeight );
                         document.body.appendChild( renderer.domElement );
 
-                        camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 800 );
+                        camera = new THREE.PerspectiveCamera( 120, window.innerWidth / window.innerHeight, 0.1, 800 );
                         //Camara 01
                         //camera.position.set( 0, 0, 0 );
                         //Camara 02
@@ -139,7 +141,7 @@
                                 //let scope = this;
                                 let objLoader2 = new OBJLoader2();
                                 let callbackOnLoad = function ( object3d ) {
-                                        object3d.receiveShadow = false;
+                                        object3d.receiveShadow = true;
                                         scene.add( object3d );
 //                                         object3d.matrix.setPosition( 1000,1000,1000 );
                                         //NECESARIO PORQUE EL MODELO NO ESTA CENTRADO
@@ -157,7 +159,7 @@
 
                                 let onLoadMtl = function ( mtlParseResult ) {
                                         objLoader2.setModelName( modelName );
-                                        objLoader2.setLogging( true, true );
+                                        objLoader2.setLogging( false, false );
                                         objLoader2.addMaterials( MtlObjBridge.addMaterialsFromMtlLoader( mtlParseResult ), true );
                                         objLoader2.load( modelName+'.obj', callbackOnLoad, null, null, null );
                                        
@@ -186,7 +188,7 @@
                         //helper.position.set( 225, 100, 50 );
 			helper.material.opacity = 0.25;
 			helper.material.transparent = true;
-			scene.add( helper );
+			//scene.add( helper );
 
                         //object = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ), material );
                         //object2 = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ));
@@ -207,16 +209,27 @@
                                 * Code for hemispheric light
                                 * @edit 20-07-15
                                 */
-                                hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+                                hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.3 );
 				hemiLight.color.setHSL( 0.6, 1, 0.6 );
 				hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
 				hemiLight.position.set( 0, 50, 0 );
-				//scene.add( hemiLight );
+				scene.add( hemiLight );
 				hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
 				scene.add( hemiLightHelper );
 
-                        var light = new THREE.DirectionalLight( 0xcccccc);
+
+
+                        var light = new THREE.DirectionalLight( 0xcccccc,0.7);
                         light.position.set(20, 100, 20);
+                        scene.add( light );
+                        light.castShadow = true;
+                        var dirLightHeper = new THREE.DirectionalLightHelper( light, 10 );
+                        scene.add( dirLightHeper );
+                        
+                        
+                        
+                        var light = new THREE.DirectionalLight( 0xaaaaaa,0.2);
+                        light.position.set(-100, 100, -100);
                         scene.add( light );
                         light.castShadow = true;
                         var dirLightHeper = new THREE.DirectionalLightHelper( light, 10 );
@@ -227,11 +240,11 @@
 //                        scene.add( light );
 //                        light.castShadow = true;
 
-                        var light = new THREE.AmbientLight( 0xffffff );
+                        var light = new THREE.AmbientLight( 0xffffff,0.3 );
                         //scene.add( light );
                         
-                        //var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
-                        //scene.add( light );
+                        var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 0.2 );
+                        scene.add( light );
 
 
                         /**
@@ -246,7 +259,7 @@
 				var ground = new THREE.Mesh( groundGeo, groundMat );
 				ground.position.y = - 330;
 				ground.rotation.x = - Math.PI / 2;
-				ground.receiveShadow = true;
+				ground.receiveShadow = false;
 				scene.add( ground );
 
 				// SKYDOME

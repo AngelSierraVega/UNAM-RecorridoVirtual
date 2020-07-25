@@ -1,6 +1,9 @@
 <?php
 /**
+ * Prueba de cámaras y modelo. Modelo a escala 1:1. Luz omnidireccional. 
  * @since 20-04-24
+ * @edit 20-07-24
+ * - 
  */
 ?>
 
@@ -81,11 +84,11 @@
                         renderer.setSize( window.innerWidth, window.innerHeight );
                         document.body.appendChild( renderer.domElement );
 
-                        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
+                        camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 800 );
                         //Camara 01
-                        camera.position.set( -5000, 200, 200 );
+                        //camera.position.set( 0, 0, 0 );
                         //Camara 02
-                        //camera.position.set( 400, 200, 200 );
+                       //camera.position.set( 400, 200, 200 );
 
                         // controls
 
@@ -98,11 +101,17 @@
 
                         controls.screenSpacePanning = false;
 
-                        controls.minDistance = 150;
-                        controls.maxDistance = 1500;
+                        controls.minDistance = 1;
+                        controls.maxDistance = 300;
 
-                        controls.maxPolarAngle = Math.PI / 2;
+                        controls.maxPolarAngle = Math.PI;
 				
+                                
+                                
+                                
+                        
+                        
+                        
 				
 
                         // world
@@ -123,17 +132,19 @@
                         }
                         */
 				
-                                let modelName = 'CCU_NUEVOS_MATERIALES';
+                                let modelName = 'ModeloCentrado_DF';
                                 //this._reportProgress( { detail: { text: 'Loading: ' + modelName } } );
 
 
                                 //let scope = this;
                                 let objLoader2 = new OBJLoader2();
                                 let callbackOnLoad = function ( object3d ) {
+                                        object3d.receiveShadow = false;
                                         scene.add( object3d );
 //                                         object3d.matrix.setPosition( 1000,1000,1000 );
-                                        object3d.scale.set(7,7,7);
-                                         object3d.position.set(-120*7,-10,225*7);
+                                        //NECESARIO PORQUE EL MODELO NO ESTA CENTRADO
+                                        //object3d.scale.set(7,7,7);
+                                         //object3d.position.set(-120*7,-10,225*7);
                                          
 //                                         object3d.updateMatrix();
                                         console.log( 'Loading complete: ' + modelName );
@@ -153,6 +164,34 @@
                                 };
                                 let mtlLoader = new MTLLoader();
                                 mtlLoader.load( modelName+'.mtl', onLoadMtl );
+                                
+                        
+                        /**
+                         * @edit 20-07-04
+                         * Plano simple
+                         */
+                        var geometry = new THREE.PlaneBufferGeometry( 2050, 2100, 32, 32 );
+                        var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+                        var plane = new THREE.Mesh( geometry, material );
+                        plane.position.set( 225, 0, 50 );
+                        plane.rotateX( Math.PI/2 );
+                        //scene.add( plane );
+                        
+                        /**
+                         * @edit 20-07-04
+                         * Malla
+                         */
+                        var helper = new THREE.GridHelper( 286, 286 );
+			//helper.position.z = 50;
+                        //helper.position.set( 225, 100, 50 );
+			helper.material.opacity = 0.25;
+			helper.material.transparent = true;
+			scene.add( helper );
+
+                        //object = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ), material );
+                        //object2 = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ));
+			//object.position.set( - 300, 0, 0 );
+			//scene.add( object );
 					
 					
                         // raycaster
@@ -172,17 +211,16 @@
 				hemiLight.color.setHSL( 0.6, 1, 0.6 );
 				hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
 				hemiLight.position.set( 0, 50, 0 );
-				scene.add( hemiLight );
+				//scene.add( hemiLight );
 				hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
 				scene.add( hemiLightHelper );
 
-//                        var light = new THREE.DirectionalLight( 0xcccccc);
-//                        light.position.set(50, 50, 50 );
-//                        scene.add( light );
-//                        light.castShadow = true;
-//                        
-//                        dirLightHeper = new THREE.DirectionalLightHelper( light, 100 );
-//                        scene.add( dirLightHeper );
+                        var light = new THREE.DirectionalLight( 0xcccccc);
+                        light.position.set(20, 100, 20);
+                        scene.add( light );
+                        light.castShadow = true;
+                        var dirLightHeper = new THREE.DirectionalLightHelper( light, 10 );
+                        scene.add( dirLightHeper );
 
 //                        var light = new THREE.DirectionalLight( 0xbbbbbb );
 //                        light.position.set( 200, 200, 200 );
@@ -190,7 +228,7 @@
 //                        light.castShadow = true;
 
                         var light = new THREE.AmbientLight( 0xffffff );
-                        scene.add( light );
+                        //scene.add( light );
                         
                         //var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
                         //scene.add( light );

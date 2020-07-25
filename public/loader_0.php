@@ -1,6 +1,6 @@
 <?php
 /**
- * Prueba de cámaras y modelo. Modelo a escala 1:1. Luz omnidireccional. 
+ * Modelo dummie. Luz omnidireccional. 
  * @since 20-04-24
  * @edit 20-07-24
  * - 
@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>three.js webgl - orbit controls</title>
+        <title>Modelo dummie. Luz omnidireccional. </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="main.css">
@@ -69,18 +69,8 @@
                 animate();
 
                 function init() {
-
                         scene = new THREE.Scene();
                         scene.background = new THREE.Color( 0xcccccc );
-                        /**
-                        * Code for hemispheric light
-                        * @edit 20-07-15
-                        * scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
-                        scene.fog = new THREE.Fog( scene.background, 1, 5000 );
-                        */
-                        
-                        //scene.fog = new THREE.FogExp2( 0xcccccc, 0.001 );
-
                         renderer = new THREE.WebGLRenderer( { antialias: true } );
                         renderer.setPixelRatio( window.devicePixelRatio );
                         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -103,36 +93,12 @@
 
                         controls.screenSpacePanning = false;
 
-                        controls.minDistance = 1;
-                        controls.maxDistance = 1;
+                        controls.minDistance = 10;
+                        controls.maxDistance = 800;
 
                         controls.maxPolarAngle = Math.PI;
-				
-                                
-                                
-                                
-                        
-                        
-                        
-				
 
                         // world
-                        /*
-                        var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
-                        var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
-
-                        for ( var i = 0; i < 500; i ++ ) {
-
-                                var mesh = new THREE.Mesh( geometry, material );
-                                mesh.position.x = Math.random() * 1600 - 800;
-                                mesh.position.y = 0;
-                                mesh.position.z = Math.random() * 1600 - 800;
-                                mesh.updateMatrix();
-                                mesh.matrixAutoUpdate = false;
-                                scene.add( mesh );
-
-                        }
-                        */
 				
                                 let modelName = 'ModeloCentrado_DF';
                                 //this._reportProgress( { detail: { text: 'Loading: ' + modelName } } );
@@ -165,22 +131,87 @@
                                        
                                 };
                                 let mtlLoader = new MTLLoader();
-                                mtlLoader.load( modelName+'.mtl', onLoadMtl );
+                                //mtlLoader.load( modelName+'.mtl', onLoadMtl );
                                 
                         
                         /**
-                         * @edit 20-07-04
+                         * @edit 20-07-24
                          * Plano simple
                          */
                         var geometry = new THREE.PlaneBufferGeometry( 2050, 2100, 32, 32 );
-                        var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+                        var material = new THREE.MeshBasicMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
                         var plane = new THREE.Mesh( geometry, material );
-                        plane.position.set( 225, 0, 50 );
+                        plane.position.set( 225, -5, 50 );
                         plane.rotateX( Math.PI/2 );
                         //scene.add( plane );
                         
                         /**
-                         * @edit 20-07-04
+                         * @edit 20-07-25
+                         * Círuclo simple
+                         */
+                        var geometry = new THREE.CircleBufferGeometry( 300, 20, 0, Math.PI * 2 );
+                        //var material = new THREE.MeshBasicMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
+                        var circle = new THREE.Mesh( geometry, material );
+                        circle.position.set( 0, -5, 0 );
+                        circle.rotateX( Math.PI/2 );
+                        circle.receiveShadow = true;
+                        scene.add( circle );
+                        
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Textura
+                         */
+                        var map = new THREE.TextureLoader().load( modelName+'/Concrete_Scored_Jointless.jpg' );
+			map.wrapS = map.wrapT = THREE.RepeatWrapping;
+			map.anisotropy = 16;
+                        var matConcreto = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Textura
+                         */
+                        var map = new THREE.TextureLoader().load( modelName+'/Polished_Concrete_New.jpg' );
+			map.wrapS = map.wrapT = THREE.RepeatWrapping;
+			map.anisotropy = 16;
+                        var matConcretoPulido = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Textura Cladding_Stucco_White
+                         */
+                        var map = new THREE.TextureLoader().load( modelName+'/Cladding_Stucco_White.jpg' );
+			map.wrapS = map.wrapT = THREE.RepeatWrapping;
+			map.anisotropy = 16;
+                        var matStucco = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        
+                        //
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Dummie muac
+                         */
+                        var geometry = new THREE.BoxBufferGeometry( 100, 20, 80, 4, 4, 4 );
+                        var dummie_muac = new THREE.Mesh( geometry, matStucco );
+			dummie_muac.position.set( -80, 0, -90 );
+			scene.add( dummie_muac );    
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Dummie Sor Juana
+                         */
+                        var geometry = new THREE.BoxBufferGeometry( 30, 10, 44, 4, 4, 4 );
+                        var dummie_sj01 = new THREE.Mesh( geometry, matConcreto );
+			dummie_sj01.position.set( 10, 0, 30 );
+			scene.add( dummie_sj01 );   
+                        var geometry = new THREE.BoxBufferGeometry( 20, 25, 10, 4, 4, 4 );
+                        var dummie_sj02 = new THREE.Mesh( geometry, matConcretoPulido );
+			dummie_sj02.position.set( 12, 0, 50 );
+			scene.add( dummie_sj02 );  
+                        
+                        
+                        /**
+                         * @edit 20-07-24
                          * Malla
                          */
                         var helper = new THREE.GridHelper( 286, 286 );

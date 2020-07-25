@@ -1,0 +1,86 @@
+20-03-03 to 20-07-02
+
+
+
+La respuesta a la pandemia de covid 19 requiere de toda la sociedad soluciones que atiendan un problema como al que no se había enfrentado en su historia reciente. Todos, desde nuestro quehacer individual estamos llamados a reinventar nuestra cotidianidad y en ese sentido las instituciones que hemos construido
+tienen que jugar un papel más predominante que los meros individuos que las conforman.
+
+La presente propuesta es un proyecto ambicioso que intenta acercar, ahora más que nunca, el valor incalculable de la cultura, dándoles la opción de experimentar -desde la seguridad y sana distancia que da la internet-, una gran parte hasta ahora no disponible de la infraestructura cultural de la UNAM; mediante la puesta en línea de [x cantidad] de recorridos virtuales de 360, integrados con modelos 3D navegables desde cualquier dispositivo,
+con imágenes, sonidos, videos, películas, canciones, y un largo etc. de activos culturales, algunos de los cuales forman ya parte del proyecto RUEyAC.
+
+Estamos seguros que este tipo de propuestas están a la vanguardia de lo que las instituciones culturales pueden ofrecer a la ciudadanía
+para construir esta nueva normalidad que depende tanto de todos nosotros.
+
+
+
+
+Servicios digitales:
+
+- Desarrollo de sistemas: Expansión del RUEyAC (imagen 360, modelos tridimensionales, video y audio).
+    Requerimiento: Actualización de RUEyAC (frontend y backend) para cargar y almacenar imagen 360, modelos tridimensionales, video y audio.
+    Cotización: 12,500.00   Tiempo Estimado: 1 mes.  
+
+- Desarrollo web: Recorrido virtual 360 (Calidad Alta/Estandar, escritorio y móvil).
+    Requerimiento: Creación automatizada de landing-page y menú de navegación para recorridos virtuales 360 tomados del RUEyAC.
+    Cotización: 12,500.00    Tiempo estimado: 6 semanas.
+
+- Desarrollo app web: Subsistema RUEyAC.
+    Requerimiento: Acceso a información del RUEyAC exclusivamente bajo autenticación.
+    Cotización: 3,500.00    Tiempo estimado: 15 días.
+
+- Toma de fotografía 360.
+    Cotización Unitaria:    100-200: 700.00  201-400: 360.00    400+: 200     
+    Tiempo estimado: 10 imágenes x semana máx.
+
+- Preparación de fotografía 360. Calidad HDRI y calidad ESTANDAR (imágen preprocesada p/ conexiones lentas)
+    Cotización Unitaria:   1-12: 350.00    13-35: 300.00       36-65: 250.00       66-100: 200.00     100+: 150.00
+    Tiempo estimado: 20 imágenes x semana máx. 
+
+- Desarrollo web: Recorrido virtual de modelo tridimensional (Escritorio y móvil).
+    Requerimiento: Creación de landing-page para recorrido virtual de modelo 3d tomado del RUEyAC.
+    Cotización: 9,000.00    Tiempo estimado: 4 semanas.
+
+- Desarrollo de sistemas: API CONEKTA / Ticketmaster Partner API / Paypal (para posible venta de boletos)
+    Requerimiento: Desarrollo de módulo de venta de boletos CONEKTA/Paypal   Cotización: 18,000.00
+    Requerimiento: Desarrollo de módulo de venta de boletos Ticketmaster     Cotización: 12,500.00
+    Tiempo estimado: 1 mes.
+
+- Desarrollo app web: 'Mezcladora de sonidos'.
+    Requerimiento: Desarrollo de app para crear mezclas de sonido tomadas del RUEyAC
+    Cotización: 8,000.00    Tiempo estimado: 20 dias.
+
+- Desarrollo web: Reproducción de video / sonido.
+    Requerimiento: Reproductor de video/sonido tomado del RUEyAC
+    Cotización: 2,000.00    Tiempo estimado: 2 semanas.
+
+- Modelado, animación y renderizado 3D (fotorealista).
+    ¿?
+
+
+
+
+
+Cronograma
+- Funcionalidad: Despliegue y navegación básica de modelo tridimensional (.obj) en navegador. (¿¿¿¿????)
+- Esquema de la página web. (¿¿¿¿????)
+- Funcionalidad: Vinculación de eventos entre el modelo tridimensional y la página web. (¿¿¿¿????)
+- Prototipo funcional en grupoindie.net (¿¿¿¿????)
+- Funcionalidad: Lectura de información de los EC's desde el RUEyAC. (Jue 2) RETRASADO lun 10 ago
+- Optimización del modelo. (Jue 9) RETRASADO, solicitar actualización el jue 16
+    Sketchup
+- Materiales del modelo. (Jue 16)
+- Renderización del modelo. (Jue 23)
+- Navegación final. (Jue 30)
+- Vinculación compra de boletos (????)
+
+- Desarrollo de sistemas: Expansión del RUEyAC (Lun 03 ago)
+    - Lectura de información del RUEyAC (Lun 10)
+    - Subsistema RUEyAC (Lun 17)
+    - Reunión con diseñador web (Lun 17)
+    - Reproducción de video (Jue 27)
+    - Mezcladora de sonidos (Jue 27)
+
+- Desarrollo web: Recorrido virtual 360 (Calidad Alta/Estandar, escritorio y móvil) (?????)
+- Animación (????)
+
+- Esquema de colores de la página y logotipos. (05 sep)
