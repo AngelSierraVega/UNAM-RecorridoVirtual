@@ -33,7 +33,7 @@
 
         <script type="module">
             
-                let modelName = 'ModeloCentrado_DF';
+                const modelName = 'ModeloCentrado_SF';
                 
                 import * as THREE from '/UNAM/RecorridoVirtual/build/three.module.js';
                 
@@ -78,94 +78,160 @@
                 animate();
                 
                 
+                
 
                 function init() {
-                        scene = new THREE.Scene();
-                        //scene.background = new THREE.Color( 0xcccccc );
-                        renderer = new THREE.WebGLRenderer( { antialias: true } );
-                        renderer.setPixelRatio( window.devicePixelRatio );
-                        renderer.setSize( window.innerWidth, window.innerHeight );
-                        document.body.appendChild( renderer.domElement );
-
+                        initEscena();
+                        /**
+                         * Camara
+                         */
                         //initCamaraTop();
                         initCamaraDefault();
-                        // controls
-
-                        controls = new OrbitControls( camera, renderer.domElement );
-
-                        controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
-
-                        controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-                        controls.dampingFactor = 0.05;
-
-                        controls.screenSpacePanning = false;
-
-                        controls.minDistance = 10;
-                        controls.maxDistance = 800;
-
-                        controls.maxPolarAngle = Math.PI;
-
-                        // world
+                        /**
+                         * Controles
+                         */
+                        initControlesOrbitales();
+                        /**
+                         * Mundo
+                         */
+                        //initPisoCircular();
+                        //initPlacasEspaciosCulturales();
+                        //initMalla()
                         initDummies();
-                        
+                        //initModeloFinal();
                         /**
-                         * @edit 20-07-25
-                         * Círuclo simple
+                         * Iluminación
                          */
-                        var geometry = new THREE.CircleBufferGeometry( 300, 20, 0, Math.PI * 2 );
-                        var material = new THREE.MeshBasicMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
-                        var circle = new THREE.Mesh( geometry, material );
-                        circle.position.set( 0, -5, 0 );
-                        circle.rotateX( Math.PI/2 );
-                        circle.receiveShadow = true;
-                        scene.add( circle );
-                        
-                        
-                        //cargarObjetosDummie();
-                        cargarPlacasEspaciosCulturales();
-                        
-                        
-                        /**
-                         * @edit 20-07-24
-                         * Malla
-                         */
-                        var helper = new THREE.GridHelper( 286, 286 );
-                        //helper.position.z = 50;
-                        //helper.position.set( 225, 100, 50 );
-                        helper.material.opacity = 0.25;
-                        helper.material.transparent = true;
-                        scene.add( helper );
-
-                        //object = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ), material );
-                        //object2 = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ));
-                        //object.position.set( - 300, 0, 0 );
-                        //scene.add( object );
-					
-					
-                        // raycaster
-                                
-                        raycaster = new THREE.Raycaster();
-                        mouse = new THREE.Vector2();
-				
-                        //document.addEventListener('mousedown',onDocumentMouseDown,false);	
-                        //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-                        
-                        // lights
-                        var light = new THREE.AmbientLight( 0xffffff );
-                        scene.add( light );
-
+                        //initIluminacionSimple();
+                        //initLuzDireccionalPrimaria();
+                        //initLuzPuntualPrimaria();
+                        initLuzFocalPrimaria();
                         window.addEventListener( 'resize', onWindowResize, false );
 
+                }
+                
+                /**
+                 * @since 20-06-18
+                 */
+                function initModeloFinal(){
+                    let objLoader2 = new OBJLoader2();
+                                let callbackOnLoad = function ( object3d ) {
+                                   // if ( object3d.material ) object3d.material = new THREE.MeshBasicMaterial();
+                                        //object3d.receiveShadow = true;
+                                        //object3d.castShadow = true;
+                                        
+                                        object3d.traverse( child => {
+
+                                            //if ( child.material ) child.material = new THREE.MeshStandardMaterial();
+                                            child.receiveShadow = true;
+                                            child.castShadow = true;
+                                        } );
+                                        
+                                        scene.add( object3d );
+                                        //NECESARIO PORQUE EL MODELO NO ESTA CENTRADO
+                                        //object3d.scale.set(7,7,7);
+                                         //object3d.position.set(-120*7,-10,225*7);
+                                         
+//                                         object3d.updateMatrix();
+                                        console.log( 'Loading complete: ' + modelName );
+                                        
+                                        //scope._reportProgress( { detail: { text: '' } } );
+                                };
+
+                                let onLoadMtl = function ( mtlParseResult ) {
+                                        objLoader2.setModelName( modelName );
+                                        objLoader2.setLogging( false, false );
+                                        objLoader2.addMaterials( MtlObjBridge.addMaterialsFromMtlLoader( mtlParseResult ), true );
+                                        objLoader2.load( modelName+'.obj', callbackOnLoad, null, null, null );
+//                                        scene.traverse(function(children){
+//                                                objects.push(children);
+//                                        });
+                                       
+                                };
+                                let mtlLoader = new MTLLoader();
+                                mtlLoader.setMaterialOptions({side: THREE.DoubleSide});
+                                mtlLoader.load( modelName+'.mtl', onLoadMtl );
+                }
+                
+                
+                /**
+                 * @since 20-07-26
+                 */
+                function initLuzFocalPrimaria(){
+                    var light = new THREE.SpotLight( 0xffffff );
+                    light.position.set( 0, 100, 0 );
+                    scene.add( light );
+                    light.castShadow = true;
+                    light.angle = Math.PI/2.6;
+                    light.penumbra = 0.5;
+                    var dirLightHeper = new THREE.SpotLightHelper( light, 3 );
+                    scene.add( dirLightHeper );
+                      
+                    //Set up shadow properties for the light
+                    light.shadow.mapSize.width = 512*2;  // default
+                    light.shadow.mapSize.height = 512*2; // default
+                    light.shadow.camera.near = 30;    // default
+                    light.shadow.camera.far = 300;     // default
+                    //light.shadow.camera.fov = 10;
+                }
+                
+                /**
+                 * @since 20-07-26
+                 */
+                function initLuzPuntualPrimaria(){
+                    //var light = new THREE.PointLight( 0xffffff, 1, 100 );
+                    var light = new THREE.PointLight( 0xffffff,1);
+                    light.position.set( 0, 100, 0 );
+                        scene.add( light );
+                        light.castShadow = true;
+                        var dirLightHeper = new THREE.PointLightHelper( light, 3 );
+                        scene.add( dirLightHeper );
+                        
+                        //Set up shadow properties for the light
+                        light.shadow.mapSize.width = 512*2;  // default
+                        light.shadow.mapSize.height = 512*2; // default
+                        light.shadow.camera.near = 20;    // default
+                        light.shadow.camera.far = 300;     // default
+                }
+                
+                /**
+                 * @since 20-07-11
+                 */
+                function initLuzDireccionalPrimaria(){
+                   //var light = new THREE.DirectionalLight( 0xffffff,1,100);
+                   var light = new THREE.DirectionalLight( 0xffffff,1);
+                        light.position.set(1, 30, 1);
+                        scene.add( light );
+                        light.castShadow = true;
+                        var dirLightHeper = new THREE.DirectionalLightHelper( light, 3 );
+                        scene.add( dirLightHeper );
+                        
+                        //Set up shadow properties for the light
+                        light.shadow.mapSize.width = 512;  // default
+                        light.shadow.mapSize.height = 512; // default
+                        light.shadow.camera.near = 10;    // default
+                        light.shadow.camera.far = 50;     // default
+                }
+                
+                /**
+                 * 
+                 * @since 20-06-05
+                 */
+                function initIluminacionSimple(){
+                    // lights
+                    var light = new THREE.AmbientLight( 0xffffff );
+                    scene.add( light );
                 }
                 
                 /**
                  * @since 19-07-25
                  * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
                  */
-                function cargarPlacasEspaciosCulturales(){
+                function initPlacasEspaciosCulturales(){
                     
                     var geometry = new THREE.CircleBufferGeometry( 8, 16);
-                    var material = new THREE.MeshBasicMaterial( {color: "gold", side: THREE.DoubleSide} );
+                    //var material = new THREE.MeshStandardMaterial( {color: "gold", side: THREE.DoubleSide} );
+                    var material = new THREE.MeshStandardMaterial( {color: "gold"} );
                    /**
                     * Placa MUAC
                     */
@@ -183,6 +249,7 @@
                     circle.position.set( -80, 30, -35 );
                     circle.rotateX( Math.PI/2 );
                     circle.receiveShadow = false;
+                    circle.castShadow = false;
                     scene.add( circle );
                     meshPlacaEspacioCultural.push(circle);
                     
@@ -261,6 +328,19 @@
                  * @since 19-07-25
                  */
                 function initDummies(){
+                    
+                    var geometry = new THREE.PlaneBufferGeometry( 300, 300);
+                        //var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
+                        var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen"} );
+                        //var material = new THREE.MeshStandardMaterial( { color: "darkolivegreen" } );
+                        var circle = new THREE.Mesh( geometry, material );
+                        circle.position.set( 0, -5, 0 );
+                        circle.rotateX( Math.PI/-2 );
+                        //circle.castShadow = true;
+                        circle.receiveShadow = true;
+                        //circle.receiveShadow = false;
+                        scene.add( circle );
+                        
                     /**
                          * @edit 20-07-24
                          * Textura
@@ -268,7 +348,7 @@
                         var map = new THREE.TextureLoader().load( modelName+'/Concrete_Scored_Jointless.jpg' );
                         map.wrapS = map.wrapT = THREE.RepeatWrapping;
                         map.anisotropy = 16;
-                        var matConcreto = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        var matConcreto = new THREE.MeshStandardMaterial( { map: map, side: THREE.SingleSide } );
                         
                         /**
                          * @edit 20-07-24
@@ -277,7 +357,7 @@
                         var map = new THREE.TextureLoader().load( modelName+'/Polished_Concrete_New.jpg' );
                         map.wrapS = map.wrapT = THREE.RepeatWrapping;
                         map.anisotropy = 16;
-                        var matConcretoPulido = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        var matConcretoPulido = new THREE.MeshStandardMaterial( { map: map, side: THREE.SingleSide } );
                         
                         /**
                          * @edit 20-07-24
@@ -286,10 +366,23 @@
                         var map = new THREE.TextureLoader().load( modelName+'/Cladding_Stucco_White.jpg' );
                         map.wrapS = map.wrapT = THREE.RepeatWrapping;
                         map.anisotropy = 16;
-                        var matStucco = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        var matStucco = new THREE.MeshStandardMaterial( { map: map, side: THREE.SingleSide } );
                         
-                        //
                         
+                        var sphereGeometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
+                    var sphere = new THREE.Mesh( sphereGeometry, matConcreto );
+                    sphere.castShadow = true; //default is false
+                    sphere.receiveShadow = true; //default
+                    scene.add( sphere );
+
+                    var sphereGeometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
+                    var sphere = new THREE.Mesh( sphereGeometry, matConcretoPulido );
+                    sphere.castShadow = true; //default is false
+                    sphere.receiveShadow = true; //default
+                    sphere.position.set(0,20,3);
+                    //scene.add( sphere );
+                    
+
                         /**
                          * @edit 20-07-24
                          * Dummie muac
@@ -297,6 +390,8 @@
                         var geometry = new THREE.BoxBufferGeometry( 100, 20, 80, 4, 4, 4 );
                         var dummie_muac = new THREE.Mesh( geometry, matStucco );
                         dummie_muac.position.set( -80, 0, -90 );
+                        dummie_muac.receiveShadow = true;
+                        dummie_muac.castShadow = true;
                         scene.add( dummie_muac );    
                         
                         /**
@@ -306,16 +401,10 @@
                         var geometry = new THREE.BoxBufferGeometry( 44, 13, 30, 4, 4, 4 );
                         var dummie = new THREE.Mesh( geometry, matConcreto );
                         dummie.position.set( -65, 0, 10 );
+                        dummie.receiveShadow = true;
+                        dummie.castShadow = true;
                         scene.add( dummie );   
                         
-                        /**
-                         * @edit 20-07-25
-                         * Dummie Cines
-                         */
-                        var geometry = new THREE.BoxBufferGeometry( 44, 13, 30, 4, 4, 4 );
-                        var dummie = new THREE.Mesh( geometry, matConcreto );
-                        dummie.position.set( -65, 0, 10 );
-                        scene.add( dummie );
                         
                         /**
                          * @edit 20-07-24
@@ -324,10 +413,14 @@
                         var geometry = new THREE.BoxBufferGeometry( 30, 10, 44, 4, 4, 4 );
                         var dummie_sj01 = new THREE.Mesh( geometry, matConcreto );
                         dummie_sj01.position.set( 10, 0, 30 );
+                        dummie_sj01.receiveShadow = true;
+                        dummie_sj01.castShadow = true;
                         scene.add( dummie_sj01 );   
                         var geometry = new THREE.BoxBufferGeometry( 20, 25, 10, 4, 4, 4 );
                         var dummie_sj02 = new THREE.Mesh( geometry, matConcretoPulido );
                         dummie_sj02.position.set( 12, 0, 50 );
+                        dummie_sj02.receiveShadow = true;
+                        dummie_sj02.castShadow = true;
                         scene.add( dummie_sj02 );  
                 }
                 
@@ -337,8 +430,17 @@
                 function initCamaraTop(){
                     camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 0.1, 800 );
                     camera.position.set( 0, 700, 0 );
-                    var cameraHelper = new THREE.CameraHelper(camera);
-                    scene.add(cameraHelper);
+                    //var cameraHelper = new THREE.CameraHelper(camera);
+                    //scene.add(cameraHelper);
+                }
+                
+                /**
+                 * @since 20-06-20
+                 */
+                function initCamaraDefault(){
+                    camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 800 );
+                    //var cameraHelper = new THREE.CameraHelper(camera);
+                    //scene.add(cameraHelper);
                 }
 
                 function onWindowResize() {
@@ -351,7 +453,7 @@
                 }
 
                 function animate() {
-
+ 
                         requestAnimationFrame( animate );
                         
                         controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
@@ -365,9 +467,7 @@
                  * @since 20-07-25
                  */
                 function animPlacas(){
-                    //meshPlacaEspacioCultural[0].lookAt(camera.position);
                     meshPlacaEspacioCultural.forEach(function myFunction(value, index, array) {
-                        //txt = txt + value + "<br>";
                         value.lookAt(camera.position);
                       });
                 }
@@ -376,53 +476,76 @@
 
                         renderer.render( scene, camera );
 
-                }
-			
-                function onDocumentMouseDown(event){
-                        //console.log("click");
-                                
-                        event.preventDefault();
-                        //mouse.x = (event.clientX / renderer.domElement.width) * 2 - 1;
-                        //mouse.y = (event.clientY / renderer.domElement.height) * 2 - 1;
-                        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-                        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-				
-                        raycaster.setFromCamera(mouse,camera);
-				
-                        var intersects = raycaster.intersectObjects(objects);
-                        //console.log("intersects.length:"+intersects.length);
-                        var color = Math.random() * 0xffffff;
-                        if(intersects.length > 0){
-                                switch(intersects[0].object.name){
-                                    case "Piso":break;
-                                    default: 
-                                        intersects[0].object.material.color.setHex(color);
-                                        this.temp = intersects[0].object.material.color.getHexString();
-                                        this.name = intersects[0].object.name;
-                                        //console.log(this.name);
-                                        //doc.functionTest(intersects[0].object.name);
-                                        //var modalBody = doc.getElementsByClassName("modal-body"); 
-                                        //modalBody.innerHTML = "<p>"+intersects[0].object.name+"</p>";
-                                        window.parent.postMessage(this.name, 'http://dvlp.d');
-                                        //$("#SingleModal .modal-body").html("<p>"+intersects[0].object.name+"</p>");
-                                        //$('#SingleModal').modal('show');
-                                        //var modalById = doc.getElementById("SingleModal");
-                                        //modalById.modal('show');
-                                        break;
-                                }	
-                        }
-                }
-                        
-                function onDocumentMouseMoveDPR( event ) {
-
-                        event.preventDefault();
-
-                        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-                        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-                }
-
+                }   
                 
+                /**
+                 * @since 20-07-12
+                 */
+                function initEscena(){
+                    scene = new THREE.Scene();
+                        //scene.background = new THREE.Color( 0xcccccc );
+                        renderer = new THREE.WebGLRenderer( { antialias: true } );
+                        //renderer = new THREE.WebGLRenderer();
+                        renderer.setPixelRatio( window.devicePixelRatio );
+                        renderer.setSize( window.innerWidth, window.innerHeight );
+                        /**
+                         * @edit 20-07-25
+                         * Sombras
+                         */
+                        renderer.shadowMap.enabled = true;
+                        //renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+                        
+                        document.body.appendChild( renderer.domElement );
+                }
+                
+                /**
+                 * @since 20-07-12
+                 */
+                function initControlesOrbitales(){
+                    controls = new OrbitControls( camera, renderer.domElement );
+
+                        controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+
+                        controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+                        controls.dampingFactor = 0.05;
+
+                        controls.screenSpacePanning = false;
+
+                        controls.minDistance = 10;
+                        controls.maxDistance = 800;
+
+                        controls.maxPolarAngle = Math.PI;
+                }
+                
+                /**
+                         * @since 20-07-24
+                         * Malla
+                         */
+                function initMalla(){
+                        var helper = new THREE.GridHelper( 286, 286 );
+                        helper.material.opacity = 0.25;
+                        helper.material.transparent = true;
+                        scene.add( helper );
+                }
+                
+                /**
+                         * @edit 20-07-25
+                         * Círuclo simple
+                         */
+                function initPisoCircular(){
+                    
+                        var geometry = new THREE.CircleBufferGeometry( 300, 20);
+                        //var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
+                        var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen"} );
+                        //var material = new THREE.MeshStandardMaterial( { color: "darkolivegreen" } );
+                        var circle = new THREE.Mesh( geometry, material );
+                        circle.position.set( 0, -5, 0 );
+                        circle.rotateX( Math.PI/-2 );
+                        //circle.castShadow = true;
+                        circle.receiveShadow = true;
+                        //circle.receiveShadow = false;
+                        scene.add( circle );
+                }
 
         </script>
 
