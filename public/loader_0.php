@@ -5,6 +5,7 @@
  * @edit 20-07-24
  * - 
  */
+
 ?>
 
 <!DOCTYPE html>
@@ -31,6 +32,9 @@
         </div>
 
         <script type="module">
+            
+                let modelName = 'ModeloCentrado_DF';
+                
                 import * as THREE from '/UNAM/RecorridoVirtual/build/three.module.js';
                 
                 /**
@@ -58,6 +62,11 @@
                 
                 var mouse, raycaster;
                 var objects = [];
+                /**
+                 * Arreglo que almacena las placas de selección de los EC's
+                 * @edit 20-07-25
+                 */
+                var meshPlacaEspacioCultural = [];
                 //var INTERSECTED;
                 //var radius = 100, theta = 0;
 
@@ -67,21 +76,19 @@
                 init();
                 //render(); // remove when using next line for animation loop (requestAnimationFrame)
                 animate();
+                
+                
 
                 function init() {
                         scene = new THREE.Scene();
-                        scene.background = new THREE.Color( 0xcccccc );
+                        //scene.background = new THREE.Color( 0xcccccc );
                         renderer = new THREE.WebGLRenderer( { antialias: true } );
                         renderer.setPixelRatio( window.devicePixelRatio );
                         renderer.setSize( window.innerWidth, window.innerHeight );
                         document.body.appendChild( renderer.domElement );
 
-                        camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 800 );
-                        //Camara 01
-                        //camera.position.set( 0, 0, 0 );
-                        //Camara 02
-                       //camera.position.set( 400, 200, 200 );
-
+                        //initCamaraTop();
+                        initCamaraDefault();
                         // controls
 
                         controls = new OrbitControls( camera, renderer.domElement );
@@ -99,58 +106,14 @@
                         controls.maxPolarAngle = Math.PI;
 
                         // world
-				
-                                let modelName = 'ModeloCentrado_DF';
-                                //this._reportProgress( { detail: { text: 'Loading: ' + modelName } } );
-
-
-                                //let scope = this;
-                                let objLoader2 = new OBJLoader2();
-                                let callbackOnLoad = function ( object3d ) {
-                                        object3d.receiveShadow = false;
-                                        scene.add( object3d );
-//                                         object3d.matrix.setPosition( 1000,1000,1000 );
-                                        //NECESARIO PORQUE EL MODELO NO ESTA CENTRADO
-                                        //object3d.scale.set(7,7,7);
-                                         //object3d.position.set(-120*7,-10,225*7);
-                                         
-//                                         object3d.updateMatrix();
-                                        console.log( 'Loading complete: ' + modelName );
-                                        scene.traverse(function(children){
-                                                objects.push(children);
-                                                //console.log("children.name:"+children.name);
-                                        });
-                                        //scope._reportProgress( { detail: { text: '' } } );
-                                };
-
-                                let onLoadMtl = function ( mtlParseResult ) {
-                                        objLoader2.setModelName( modelName );
-                                        objLoader2.setLogging( true, true );
-                                        objLoader2.addMaterials( MtlObjBridge.addMaterialsFromMtlLoader( mtlParseResult ), true );
-                                        objLoader2.load( modelName+'.obj', callbackOnLoad, null, null, null );
-                                       
-                                };
-                                let mtlLoader = new MTLLoader();
-                                //mtlLoader.load( modelName+'.mtl', onLoadMtl );
-                                
-                        
-                        /**
-                         * @edit 20-07-24
-                         * Plano simple
-                         */
-                        var geometry = new THREE.PlaneBufferGeometry( 2050, 2100, 32, 32 );
-                        var material = new THREE.MeshBasicMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
-                        var plane = new THREE.Mesh( geometry, material );
-                        plane.position.set( 225, -5, 50 );
-                        plane.rotateX( Math.PI/2 );
-                        //scene.add( plane );
+                        initDummies();
                         
                         /**
                          * @edit 20-07-25
                          * Círuclo simple
                          */
                         var geometry = new THREE.CircleBufferGeometry( 300, 20, 0, Math.PI * 2 );
-                        //var material = new THREE.MeshBasicMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
+                        var material = new THREE.MeshBasicMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
                         var circle = new THREE.Mesh( geometry, material );
                         circle.position.set( 0, -5, 0 );
                         circle.rotateX( Math.PI/2 );
@@ -158,56 +121,8 @@
                         scene.add( circle );
                         
                         
-                        /**
-                         * @edit 20-07-24
-                         * Textura
-                         */
-                        var map = new THREE.TextureLoader().load( modelName+'/Concrete_Scored_Jointless.jpg' );
-			map.wrapS = map.wrapT = THREE.RepeatWrapping;
-			map.anisotropy = 16;
-                        var matConcreto = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
-                        
-                        /**
-                         * @edit 20-07-24
-                         * Textura
-                         */
-                        var map = new THREE.TextureLoader().load( modelName+'/Polished_Concrete_New.jpg' );
-			map.wrapS = map.wrapT = THREE.RepeatWrapping;
-			map.anisotropy = 16;
-                        var matConcretoPulido = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
-                        
-                        /**
-                         * @edit 20-07-24
-                         * Textura Cladding_Stucco_White
-                         */
-                        var map = new THREE.TextureLoader().load( modelName+'/Cladding_Stucco_White.jpg' );
-			map.wrapS = map.wrapT = THREE.RepeatWrapping;
-			map.anisotropy = 16;
-                        var matStucco = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
-                        
-                        //
-                        
-                        /**
-                         * @edit 20-07-24
-                         * Dummie muac
-                         */
-                        var geometry = new THREE.BoxBufferGeometry( 100, 20, 80, 4, 4, 4 );
-                        var dummie_muac = new THREE.Mesh( geometry, matStucco );
-			dummie_muac.position.set( -80, 0, -90 );
-			scene.add( dummie_muac );    
-                        
-                        /**
-                         * @edit 20-07-24
-                         * Dummie Sor Juana
-                         */
-                        var geometry = new THREE.BoxBufferGeometry( 30, 10, 44, 4, 4, 4 );
-                        var dummie_sj01 = new THREE.Mesh( geometry, matConcreto );
-			dummie_sj01.position.set( 10, 0, 30 );
-			scene.add( dummie_sj01 );   
-                        var geometry = new THREE.BoxBufferGeometry( 20, 25, 10, 4, 4, 4 );
-                        var dummie_sj02 = new THREE.Mesh( geometry, matConcretoPulido );
-			dummie_sj02.position.set( 12, 0, 50 );
-			scene.add( dummie_sj02 );  
+                        //cargarObjetosDummie();
+                        cargarPlacasEspaciosCulturales();
                         
                         
                         /**
@@ -215,16 +130,16 @@
                          * Malla
                          */
                         var helper = new THREE.GridHelper( 286, 286 );
-			//helper.position.z = 50;
+                        //helper.position.z = 50;
                         //helper.position.set( 225, 100, 50 );
-			helper.material.opacity = 0.25;
-			helper.material.transparent = true;
-			scene.add( helper );
+                        helper.material.opacity = 0.25;
+                        helper.material.transparent = true;
+                        scene.add( helper );
 
                         //object = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ), material );
                         //object2 = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100, 4, 4 ));
-			//object.position.set( - 300, 0, 0 );
-			//scene.add( object );
+                        //object.position.set( - 300, 0, 0 );
+                        //scene.add( object );
 					
 					
                         // raycaster
@@ -242,6 +157,189 @@
                         window.addEventListener( 'resize', onWindowResize, false );
 
                 }
+                
+                /**
+                 * @since 19-07-25
+                 * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
+                 */
+                function cargarPlacasEspaciosCulturales(){
+                    
+                    var geometry = new THREE.CircleBufferGeometry( 8, 16);
+                    var material = new THREE.MeshBasicMaterial( {color: "gold", side: THREE.DoubleSide} );
+                   /**
+                    * Placa MUAC
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( -80, 30, -90 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Placa Explanada
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( -80, 30, -35 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Placa Cines
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( -75, 30, 18 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Sala Carlos Chaves
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( -30, 30, 43 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Sala Miguel Covarruvias
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( -53, 30, 78 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Salón de danza
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( -47, 30, 104 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Sala neza
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( 10, 30, -40 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Foro sor juana
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( 13, 30, 15 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                    
+                    /**
+                    * Teatro Juan Ruiz
+                    */
+                    var circle = new THREE.Mesh( geometry, material );
+                    circle.position.set( 12, 30, 50 );
+                    circle.rotateX( Math.PI/2 );
+                    circle.receiveShadow = false;
+                    scene.add( circle );
+                    meshPlacaEspacioCultural.push(circle);
+                }
+                
+                /**
+                 * @since 19-07-25
+                 */
+                function initDummies(){
+                    /**
+                         * @edit 20-07-24
+                         * Textura
+                         */
+                        var map = new THREE.TextureLoader().load( modelName+'/Concrete_Scored_Jointless.jpg' );
+                        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+                        map.anisotropy = 16;
+                        var matConcreto = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Textura
+                         */
+                        var map = new THREE.TextureLoader().load( modelName+'/Polished_Concrete_New.jpg' );
+                        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+                        map.anisotropy = 16;
+                        var matConcretoPulido = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Textura Cladding_Stucco_White
+                         */
+                        var map = new THREE.TextureLoader().load( modelName+'/Cladding_Stucco_White.jpg' );
+                        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+                        map.anisotropy = 16;
+                        var matStucco = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+                        
+                        //
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Dummie muac
+                         */
+                        var geometry = new THREE.BoxBufferGeometry( 100, 20, 80, 4, 4, 4 );
+                        var dummie_muac = new THREE.Mesh( geometry, matStucco );
+                        dummie_muac.position.set( -80, 0, -90 );
+                        scene.add( dummie_muac );    
+                        
+                        /**
+                         * @edit 20-07-25
+                         * Dummie Cines
+                         */
+                        var geometry = new THREE.BoxBufferGeometry( 44, 13, 30, 4, 4, 4 );
+                        var dummie = new THREE.Mesh( geometry, matConcreto );
+                        dummie.position.set( -65, 0, 10 );
+                        scene.add( dummie );   
+                        
+                        /**
+                         * @edit 20-07-25
+                         * Dummie Cines
+                         */
+                        var geometry = new THREE.BoxBufferGeometry( 44, 13, 30, 4, 4, 4 );
+                        var dummie = new THREE.Mesh( geometry, matConcreto );
+                        dummie.position.set( -65, 0, 10 );
+                        scene.add( dummie );
+                        
+                        /**
+                         * @edit 20-07-24
+                         * Dummie Sor Juana
+                         */
+                        var geometry = new THREE.BoxBufferGeometry( 30, 10, 44, 4, 4, 4 );
+                        var dummie_sj01 = new THREE.Mesh( geometry, matConcreto );
+                        dummie_sj01.position.set( 10, 0, 30 );
+                        scene.add( dummie_sj01 );   
+                        var geometry = new THREE.BoxBufferGeometry( 20, 25, 10, 4, 4, 4 );
+                        var dummie_sj02 = new THREE.Mesh( geometry, matConcretoPulido );
+                        dummie_sj02.position.set( 12, 0, 50 );
+                        scene.add( dummie_sj02 );  
+                }
+                
+                /**
+                 * @since 20-07-25
+                 */
+                function initCamaraTop(){
+                    camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 0.1, 800 );
+                    camera.position.set( 0, 700, 0 );
+                    var cameraHelper = new THREE.CameraHelper(camera);
+                    scene.add(cameraHelper);
+                }
 
                 function onWindowResize() {
 
@@ -255,11 +353,23 @@
                 function animate() {
 
                         requestAnimationFrame( animate );
-
+                        
                         controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
-
+                        animPlacas();
                         render();
 
+                }
+                
+                /**
+                 * Animar las placas de seleccion
+                 * @since 20-07-25
+                 */
+                function animPlacas(){
+                    //meshPlacaEspacioCultural[0].lookAt(camera.position);
+                    meshPlacaEspacioCultural.forEach(function myFunction(value, index, array) {
+                        //txt = txt + value + "<br>";
+                        value.lookAt(camera.position);
+                      });
                 }
 
                 function render() {
