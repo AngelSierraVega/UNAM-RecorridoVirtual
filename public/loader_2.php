@@ -61,6 +61,7 @@
                 //var INTERSECTED;
                 //var radius = 100, theta = 0;
 
+
                 var ifrm = window.frameElement; // reference to iframe element container
                 var doc = ifrm.ownerDocument;// reference to container's document
                 

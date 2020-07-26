@@ -33,7 +33,13 @@
 
         <script type="module">
             
-                const modelName = 'ModeloCentrado_SF';
+                const modelName = 'ModeloCentrado_SFI';
+                const CONFIG_SOMBRAS = true;
+                const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
+                
+                const COLOR_TIERRA = "darkolivegreen";
+                const COLOR_CIELO = "lightcyan";//lightskyblue
+                const COLOR_LUZCIELO = "azure";//Light Cyan
                 
                 import * as THREE from '/UNAM/RecorridoVirtual/build/three.module.js';
                 
@@ -48,6 +54,13 @@
                 import { MTLLoader } from "/UNAM/RecorridoVirtual/jsm/loaders/MTLLoader.js";
                 import { OBJLoader2 } from "/UNAM/RecorridoVirtual/jsm/loaders/OBJLoader2.js";
                 import { MtlObjBridge } from "/UNAM/RecorridoVirtual/jsm/loaders/obj2/bridge/MtlObjBridge.js";
+                
+                /**
+                 * Code for HDRI
+                 * @edit 20-07-26
+                 */
+                import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
+                import { RGBELoader } from '/UNAM/RecorridoVirtual/jsm/loaders/RGBELoader.js';
 
                 var camera, controls, scene, renderer;
                 
@@ -94,11 +107,16 @@
                         /**
                          * Mundo
                          */
-                        //initPisoCircular();
+                        initPisoCircular();
                         //initPlacasEspaciosCulturales();
                         //initMalla()
                         initDummies();
                         //initModeloFinal();
+                        /**
+                         * Fondo
+                         */
+                        //initFondoCieloSimulado();
+                        initFondoHdri();
                         /**
                          * Iluminación
                          */
@@ -112,29 +130,70 @@
                 
                 /**
                  * @since 20-06-18
+                 * @edit 20-07-26
+                 */
+                function initFondoCieloSimulado(){
+                    scene.background = new THREE.Color( COLOR_CIELO );//https://en.wikipedia.org/wiki/X11_color_names
+                    //scene.fog = new THREE.Fog( scene.background, 1, 5000 );
+                    hemiLight = new THREE.HemisphereLight( COLOR_CIELO, COLOR_TIERRA, 0.5 );
+				//hemiLight.color.setHSL( 0.6, 1, 0.6 );
+				//hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+				hemiLight.position.set( 0, 20, 0 );
+				scene.add( hemiLight );
+				hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 3 );
+				scene.add( hemiLightHelper );
+                }
+                
+                /**
+                 *
+                 * @since 20-07-26
+                 */
+                function initFondoHdri(){
+                    new RGBELoader()
+					.setDataType( THREE.UnsignedByteType ) // alt: FloatType, HalfFloatType
+					.load( 'urban_sky.hdr', function ( texture, textureData ) {
+
+						//console.log( textureData );
+						//console.log( texture );
+
+						var material = new THREE.MeshBasicMaterial( { map: texture } );
+                                                scene.background = texture;
+                                                scene.environment = texture;
+						//var quad = new THREE.PlaneBufferGeometry( 1.5 * textureData.width / textureData.height, 1.5 );
+
+						//var mesh = new THREE.Mesh( quad, material );
+
+						//scene.add( mesh );
+
+						//render();
+
+					} );
+
+				//
+
+				var gui = new GUI();
+
+				//gui.add( params, 'exposure', 0, 4, 0.01 ).onChange( render );
+				//gui.open();
+                }
+                
+                /**
+                 * @since 20-06-18
                  */
                 function initModeloFinal(){
                     let objLoader2 = new OBJLoader2();
                                 let callbackOnLoad = function ( object3d ) {
-                                   // if ( object3d.material ) object3d.material = new THREE.MeshBasicMaterial();
-                                        //object3d.receiveShadow = true;
-                                        //object3d.castShadow = true;
-                                        
                                         object3d.traverse( child => {
-
+                                            if(child.material){
+                                                child.material.reflectivity = 0; //The default value is 1
+                                                child.material.shininess = 5; //Default is 30
+                                                child.receiveShadow = true;
+                                                child.castShadow = true;
+                                            }
                                             //if ( child.material ) child.material = new THREE.MeshStandardMaterial();
-                                            child.receiveShadow = true;
-                                            child.castShadow = true;
                                         } );
-                                        
                                         scene.add( object3d );
-                                        //NECESARIO PORQUE EL MODELO NO ESTA CENTRADO
-                                        //object3d.scale.set(7,7,7);
-                                         //object3d.position.set(-120*7,-10,225*7);
-                                         
-//                                         object3d.updateMatrix();
                                         console.log( 'Loading complete: ' + modelName );
-                                        
                                         //scope._reportProgress( { detail: { text: '' } } );
                                 };
 
@@ -142,6 +201,7 @@
                                         objLoader2.setModelName( modelName );
                                         objLoader2.setLogging( false, false );
                                         objLoader2.addMaterials( MtlObjBridge.addMaterialsFromMtlLoader( mtlParseResult ), true );
+                                        //console.log(mtlParseResult);
                                         objLoader2.load( modelName+'.obj', callbackOnLoad, null, null, null );
 //                                        scene.traverse(function(children){
 //                                                objects.push(children);
@@ -149,7 +209,7 @@
                                        
                                 };
                                 let mtlLoader = new MTLLoader();
-                                mtlLoader.setMaterialOptions({side: THREE.DoubleSide});
+                                mtlLoader.setMaterialOptions({side: THREE.SingleSide});
                                 mtlLoader.load( modelName+'.mtl', onLoadMtl );
                 }
                 
@@ -158,40 +218,39 @@
                  * @since 20-07-26
                  */
                 function initLuzFocalPrimaria(){
-                    var light = new THREE.SpotLight( 0xffffff );
-                    light.position.set( 0, 100, 0 );
+                    var light = new THREE.SpotLight( COLOR_LUZCIELO,0.9 );
+                    light.position.set( -10, 120, -10 );
                     scene.add( light );
-                    light.castShadow = true;
                     light.angle = Math.PI/2.6;
                     light.penumbra = 0.5;
-                    var dirLightHeper = new THREE.SpotLightHelper( light, 3 );
-                    scene.add( dirLightHeper );
-                      
-                    //Set up shadow properties for the light
-                    light.shadow.mapSize.width = 512*2;  // default
-                    light.shadow.mapSize.height = 512*2; // default
-                    light.shadow.camera.near = 30;    // default
-                    light.shadow.camera.far = 300;     // default
-                    //light.shadow.camera.fov = 10;
+                    var LightHeper = new THREE.SpotLightHelper( light, 3 );
+                    scene.add( LightHeper );
+                    if(CONFIG_SOMBRAS){
+                        light.castShadow = true;
+                        light.shadow.mapSize.width = 512*2*2;
+                        light.shadow.mapSize.height = 512*2*2;
+                        light.shadow.camera.near = 30;
+                        light.shadow.camera.far = 300;
+                        //light.shadow.camera.fov = 10;
+                    }
                 }
                 
                 /**
                  * @since 20-07-26
                  */
                 function initLuzPuntualPrimaria(){
-                    //var light = new THREE.PointLight( 0xffffff, 1, 100 );
-                    var light = new THREE.PointLight( 0xffffff,1);
+                    var light = new THREE.PointLight( COLOR_LUZCIELO,0.9);
                     light.position.set( 0, 100, 0 );
-                        scene.add( light );
+                    scene.add( light );
+                    var dirLightHeper = new THREE.PointLightHelper( light, 3 );
+                    scene.add( dirLightHeper );
+                    if(CONFIG_SOMBRAS){
                         light.castShadow = true;
-                        var dirLightHeper = new THREE.PointLightHelper( light, 3 );
-                        scene.add( dirLightHeper );
-                        
-                        //Set up shadow properties for the light
-                        light.shadow.mapSize.width = 512*2;  // default
-                        light.shadow.mapSize.height = 512*2; // default
+                        light.shadow.mapSize.width = 512*2*2;  // default
+                        light.shadow.mapSize.height = 512*2*2; // default
                         light.shadow.camera.near = 20;    // default
                         light.shadow.camera.far = 300;     // default
+                    }
                 }
                 
                 /**
@@ -199,18 +258,19 @@
                  */
                 function initLuzDireccionalPrimaria(){
                    //var light = new THREE.DirectionalLight( 0xffffff,1,100);
-                   var light = new THREE.DirectionalLight( 0xffffff,1);
-                        light.position.set(1, 30, 1);
+                   var light = new THREE.DirectionalLight( COLOR_LUZCIELO,0.9);
+                        light.position.set(-3, 50, -3);
                         scene.add( light );
-                        light.castShadow = true;
+                        
                         var dirLightHeper = new THREE.DirectionalLightHelper( light, 3 );
                         scene.add( dirLightHeper );
-                        
-                        //Set up shadow properties for the light
+                    if(CONFIG_SOMBRAS){
+                        light.castShadow = true;
                         light.shadow.mapSize.width = 512;  // default
                         light.shadow.mapSize.height = 512; // default
                         light.shadow.camera.near = 10;    // default
-                        light.shadow.camera.far = 50;     // default
+                        light.shadow.camera.far = 200;     // default
+                    }
                 }
                 
                 /**
@@ -218,7 +278,6 @@
                  * @since 20-06-05
                  */
                 function initIluminacionSimple(){
-                    // lights
                     var light = new THREE.AmbientLight( 0xffffff );
                     scene.add( light );
                 }
@@ -370,7 +429,7 @@
                         
                         
                         var sphereGeometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
-                    var sphere = new THREE.Mesh( sphereGeometry, matConcreto );
+                    var sphere = new THREE.Mesh( sphereGeometry, matStucco );
                     sphere.castShadow = true; //default is false
                     sphere.receiveShadow = true; //default
                     scene.add( sphere );
@@ -488,11 +547,21 @@
                         //renderer = new THREE.WebGLRenderer();
                         renderer.setPixelRatio( window.devicePixelRatio );
                         renderer.setSize( window.innerWidth, window.innerHeight );
+                        
                         /**
                          * @edit 20-07-25
                          * Sombras
                          */
-                        renderer.shadowMap.enabled = true;
+                        if(CONFIG_SOMBRAS){
+                            renderer.shadowMap.enabled = true;
+                            if(CONFIG_SOMBRAS_CALIDAD_BAJA){
+                                renderer.shadowMap.type = THREE.PCFShadowMap; 
+                            }else{
+                                renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+                            }
+                        }
+                        
+                        
                         //renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
                         
                         document.body.appendChild( renderer.domElement );
@@ -536,13 +605,13 @@
                     
                         var geometry = new THREE.CircleBufferGeometry( 300, 20);
                         //var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
-                        var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen"} );
-                        //var material = new THREE.MeshStandardMaterial( { color: "darkolivegreen" } );
+                        //var material = new THREE.MeshStandardMaterial( {COLOR_TIERRA );
+                        var material = new THREE.MeshStandardMaterial( { color: COLOR_TIERRA } );
                         var circle = new THREE.Mesh( geometry, material );
-                        circle.position.set( 0, -5, 0 );
+                        circle.position.set( 0, -10, 0 );
                         circle.rotateX( Math.PI/-2 );
                         //circle.castShadow = true;
-                        circle.receiveShadow = true;
+                        circle.receiveShadow = false;
                         //circle.receiveShadow = false;
                         scene.add( circle );
                 }
