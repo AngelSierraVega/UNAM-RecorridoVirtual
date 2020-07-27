@@ -33,9 +33,16 @@
 
         <script type="module">
             
-                const modelName = 'ModeloCentrado_SFI';
+            /**
+             * ModeloCentrado_SF
+             * ModeloCentrado_SFI
+             * ModeloCentrado_DF
+             */
+             const modelName = 'ModeloCentrado_SF';
+                
                 const CONFIG_SOMBRAS = true;
                 const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
+                const CONFIG_HELPERS = false;
                 
                 const COLOR_TIERRA = "darkolivegreen";
                 const COLOR_CIELO = "lightcyan";//lightskyblue
@@ -59,10 +66,11 @@
                  * Code for HDRI
                  * @edit 20-07-26
                  */
-                import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
+                //import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
                 import { RGBELoader } from '/UNAM/RecorridoVirtual/jsm/loaders/RGBELoader.js';
 
                 var camera, controls, scene, renderer;
+                var CamaraDesarrollo;
                 
                 
                 /**
@@ -92,31 +100,39 @@
                 
                 
                 
-
+                /**
+                 * @since 20-05-20
+                 */
                 function init() {
                         initEscena();
                         /**
                          * Camara
                          */
                         //initCamaraTop();
-                        initCamaraDefault();
+                        //initCamaraDefault();
+                        initCamaraDesarrollo();
+                        //initCamaraToma01();
+                        //camera = CamaraDesarrollo;
                         /**
                          * Controles
                          */
-                        initControlesOrbitales();
+                        initControlesOrbitalesDesarrollo();
+                        //initControlesOrbitalesTomaFija();
                         /**
                          * Mundo
                          */
                         initPisoCircular();
-                        //initPlacasEspaciosCulturales();
-                        //initMalla()
-                        initDummies();
-                        //initModeloFinal();
+                        initPlacasEspaciosCulturales();
+                        if(CONFIG_HELPERS){
+                            initMalla();
+                        }
+                        //initDummies();
+                        initModeloFinal();
                         /**
                          * Fondo
                          */
-                        //initFondoCieloSimulado();
-                        initFondoHdri();
+                        initFondoCieloSimulado();
+                        //initFondoHdri();
                         /**
                          * Iluminación
                          */
@@ -124,9 +140,42 @@
                         //initLuzDireccionalPrimaria();
                         //initLuzPuntualPrimaria();
                         initLuzFocalPrimaria();
+                        /**
+                         * Eventos
+                         */
                         window.addEventListener( 'resize', onWindowResize, false );
-
                 }
+                
+                /**
+                 * @since 20-06-20
+                 */
+                function initCamaraDesarrollo(){
+                    camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight);
+                    if(CONFIG_HELPERS){
+                        var cameraHelper = new THREE.CameraHelper(CamaraDesarrollo);
+                        scene.add(cameraHelper);
+                    }
+                }
+                
+                /**
+                 * @since 20-06-20
+                 */
+                function initCamaraToma01(){
+                    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight,1,400);
+                    if(CONFIG_HELPERS){
+                        var cameraHelper = new THREE.CameraHelper(CamaraDesarrollo);
+                        scene.add(cameraHelper);
+                    }
+                }
+                
+                /**
+                 * @since 20-06-20
+                 */
+                function initCamaraDefault(){
+                    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+                    //var cameraHelper = new THREE.CameraHelper(camera);
+                    //scene.add(cameraHelper);
+                    }
                 
                 /**
                  * @since 20-06-18
@@ -140,8 +189,11 @@
 				//hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
 				hemiLight.position.set( 0, 20, 0 );
 				scene.add( hemiLight );
-				hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 3 );
-				scene.add( hemiLightHelper );
+                                if(CONFIG_HELPERS){
+                                    hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 3 );
+                                    scene.add( hemiLightHelper );
+                                }
+				
                 }
                 
                 /**
@@ -149,6 +201,14 @@
                  * @since 20-07-26
                  */
                 function initFondoHdri(){
+                    
+                    var light = new THREE.AmbientLight( 0x404040,0.9 ); // soft white light
+                    light.position.set(0,15,0);
+                    scene.add( light );
+                    if(CONFIG_HELPERS){
+                        var lightHelper = new THREE.AmbientLightHelper( light, 3 );
+                        scene.add( lightHelper );
+                    }
                     new RGBELoader()
 					.setDataType( THREE.UnsignedByteType ) // alt: FloatType, HalfFloatType
 					.load( 'urban_sky.hdr', function ( texture, textureData ) {
@@ -156,8 +216,8 @@
 						//console.log( textureData );
 						//console.log( texture );
 
-						var material = new THREE.MeshBasicMaterial( { map: texture } );
-                                                scene.background = texture;
+						
+                                                //scene.background = texture;
                                                 scene.environment = texture;
 						//var quad = new THREE.PlaneBufferGeometry( 1.5 * textureData.width / textureData.height, 1.5 );
 
@@ -166,15 +226,34 @@
 						//scene.add( mesh );
 
 						//render();
+                                                var geometry = new THREE.SphereBufferGeometry( 290, 60, 40 );
+                                                geometry.phiLength = Math.PI;
+                                                // invert the geometry on the x-axis so that all of the faces point inward
+                                                //geometry.scale( - 1, 1, 1 );
+
+                                                var textureJPG = new THREE.TextureLoader().load( 'urban_sky.jpg' );
+                                                //var material = new THREE.MeshBasicMaterial( { map: textureJPG } );
+                                                var material = new THREE.MeshBasicMaterial( { 
+                                                    map: textureJPG 
+                                                    ,side: THREE.BackSide
+                                                } );
+                                                //var material = new THREE.MeshStandardMaterial( { map: texture } );
+                                                //material.emissiveMap = texture;
+                                                //material.emissiveIntensity = 100;
+                                                var mesh = new THREE.Mesh( geometry, material );
+
+                                                scene.add( mesh );
 
 					} );
 
 				//
 
-				var gui = new GUI();
+				//var gui = new GUI();
 
 				//gui.add( params, 'exposure', 0, 4, 0.01 ).onChange( render );
 				//gui.open();
+                                
+                                
                 }
                 
                 /**
@@ -186,7 +265,8 @@
                                         object3d.traverse( child => {
                                             if(child.material){
                                                 child.material.reflectivity = 0; //The default value is 1
-                                                child.material.shininess = 5; //Default is 30
+                                                child.material.shininess = 1; //Default is 30
+                                                child.material.side = THREE.SingleSide;
                                                 child.receiveShadow = true;
                                                 child.castShadow = true;
                                             }
@@ -209,13 +289,14 @@
                                        
                                 };
                                 let mtlLoader = new MTLLoader();
-                                mtlLoader.setMaterialOptions({side: THREE.SingleSide});
+                                //mtlLoader.setMaterialOptions({side: THREE.SingleSide});
                                 mtlLoader.load( modelName+'.mtl', onLoadMtl );
                 }
                 
                 
                 /**
                  * @since 20-07-26
+                 * @edit 20-07-26
                  */
                 function initLuzFocalPrimaria(){
                     var light = new THREE.SpotLight( COLOR_LUZCIELO,0.9 );
@@ -223,8 +304,10 @@
                     scene.add( light );
                     light.angle = Math.PI/2.6;
                     light.penumbra = 0.5;
-                    var LightHeper = new THREE.SpotLightHelper( light, 3 );
-                    scene.add( LightHeper );
+                    if(CONFIG_HELPERS){
+                        var LightHeper = new THREE.SpotLightHelper( light, 3 );
+                        scene.add( LightHeper );
+                    }
                     if(CONFIG_SOMBRAS){
                         light.castShadow = true;
                         light.shadow.mapSize.width = 512*2*2;
@@ -237,13 +320,16 @@
                 
                 /**
                  * @since 20-07-26
+                 * @edit 20-07-26
                  */
                 function initLuzPuntualPrimaria(){
                     var light = new THREE.PointLight( COLOR_LUZCIELO,0.9);
                     light.position.set( 0, 100, 0 );
                     scene.add( light );
-                    var dirLightHeper = new THREE.PointLightHelper( light, 3 );
-                    scene.add( dirLightHeper );
+                    if(CONFIG_HELPERS){
+                        var dirLightHeper = new THREE.PointLightHelper( light, 3 );
+                        scene.add( dirLightHeper );
+                    }
                     if(CONFIG_SOMBRAS){
                         light.castShadow = true;
                         light.shadow.mapSize.width = 512*2*2;  // default
@@ -255,15 +341,17 @@
                 
                 /**
                  * @since 20-07-11
+                 * @edit 20-07-26
                  */
                 function initLuzDireccionalPrimaria(){
                    //var light = new THREE.DirectionalLight( 0xffffff,1,100);
                    var light = new THREE.DirectionalLight( COLOR_LUZCIELO,0.9);
                         light.position.set(-3, 50, -3);
                         scene.add( light );
-                        
-                        var dirLightHeper = new THREE.DirectionalLightHelper( light, 3 );
-                        scene.add( dirLightHeper );
+                        if(CONFIG_HELPERS){
+                            var dirLightHeper = new THREE.DirectionalLightHelper( light, 3 );
+                            scene.add( dirLightHeper );
+                        }
                     if(CONFIG_SOMBRAS){
                         light.castShadow = true;
                         light.shadow.mapSize.width = 512;  // default
@@ -276,10 +364,15 @@
                 /**
                  * 
                  * @since 20-06-05
+                 * @edit 20-07-26
                  */
                 function initIluminacionSimple(){
                     var light = new THREE.AmbientLight( 0xffffff );
                     scene.add( light );
+                    if(CONFIG_HELPERS){
+                        var dirLightHeper = new THREE.AmbientLightHelper( light, 3 );
+                        scene.add( dirLightHeper );
+                    }
                 }
                 
                 /**
@@ -493,14 +586,9 @@
                     //scene.add(cameraHelper);
                 }
                 
-                /**
-                 * @since 20-06-20
-                 */
-                function initCamaraDefault(){
-                    camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 800 );
-                    //var cameraHelper = new THREE.CameraHelper(camera);
-                    //scene.add(cameraHelper);
-                }
+                
+                    
+                
 
                 function onWindowResize() {
 
@@ -570,7 +658,7 @@
                 /**
                  * @since 20-07-12
                  */
-                function initControlesOrbitales(){
+                function initControlesOrbitalesDesarrollo(){
                     controls = new OrbitControls( camera, renderer.domElement );
 
                         controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
@@ -580,10 +668,30 @@
 
                         controls.screenSpacePanning = false;
 
-                        controls.minDistance = 10;
-                        controls.maxDistance = 800;
+                        controls.minDistance = 1;
+                        controls.maxDistance = 400;
 
                         controls.maxPolarAngle = Math.PI;
+                }
+                
+                /**
+                 * @since 20-07-26
+                 */
+                function initControlesOrbitalesTomaFija(){
+                    controls = new OrbitControls( camera, renderer.domElement );
+
+                        controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+
+                        controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+                        //controls.dampingFactor = 0.05;
+                        controls.dampingFactor = 0.1;
+
+                        controls.screenSpacePanning = false;
+
+                        controls.minDistance = 10;
+                        controls.maxDistance = 40;
+
+                        controls.maxPolarAngle = Math.PI/2;
                 }
                 
                 /**
