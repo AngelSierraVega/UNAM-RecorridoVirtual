@@ -87,14 +87,14 @@ function init() {
      * Camara
      */
     //initCamaraTop();
-    //initCamaraDefault();
-    initCamaraDesarrollo();
+    initCamaraDefault();
+    //initCamaraDesarrollo();
     //initCamaraToma01();
     //camera = CamaraDesarrollo;
     /**
      * Controles
      */
-    initControlesOrbitalesDesarrollo();
+    //initControlesOrbitalesDesarrollo();
     //initControlesOrbitalesTomaFija();
     /**
      * Mundo
@@ -122,6 +122,13 @@ function init() {
      * Eventos
      */
     window.addEventListener('resize', onWindowResize, false);
+
+    // raycaster
+
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
+    document.addEventListener('mousedown', onDocumentMouseDown, false);
 }
 
 /**
@@ -130,7 +137,7 @@ function init() {
 function initCamaraDesarrollo() {
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight);
     if (CONFIG_HELPERS) {
-        var cameraHelper = new THREE.CameraHelper(CamaraDesarrollo);
+        var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
     }
 }
@@ -148,11 +155,29 @@ function initCamaraToma01() {
 
 /**
  * @since 20-06-20
+ * @edit 20-07-27
  */
 function initCamaraDefault() {
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-    //var cameraHelper = new THREE.CameraHelper(camera);
-    //scene.add(cameraHelper);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(10, 0, 5);
+    //camera.zoom = 50;
+    if (CONFIG_HELPERS) {
+        var cameraHelper = new THREE.CameraHelper(camera);
+        scene.add(cameraHelper);
+    }
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
+
+    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    //controls.dampingFactor = 0.05;
+    controls.dampingFactor = 0.1;
+    //controls.zoom0
+    controls.screenSpacePanning = false;
+
+    controls.minDistance = 1;
+    controls.maxDistance = 400;
+
+    controls.maxPolarAngle = Math.PI / 2;
 }
 
 /**
@@ -166,7 +191,7 @@ function initFondoCieloSimulado() {
     //hemiLight.color.setHSL( 0.6, 1, 0.6 );
     //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set(0, 20, 0);
-    scene.add( hemiLight );
+    scene.add(hemiLight);
     if (CONFIG_HELPERS) {
         hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 3);
         scene.add(hemiLightHelper);
@@ -245,8 +270,11 @@ function initModeloFinal() {
                 child.material.reflectivity = 0; //The default value is 1
                 child.material.shininess = 1; //Default is 30
                 child.material.side = THREE.SingleSide;
-                child.receiveShadow = true;
-                child.castShadow = true;
+                //child.material.wireframe = true;
+                if (CONFIG_SOMBRAS) {
+                    child.receiveShadow = true;
+                    child.castShadow = true;
+                }
             }
             //if ( child.material ) child.material = new THREE.MeshStandardMaterial();
         });
@@ -361,7 +389,7 @@ function initLuzDireccionalPrimaria() {
  * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
  */
 function initPlacasEspaciosCulturales() {
-    var geometry = new THREE.CircleBufferGeometry(8, 32);
+    var geometry = new THREE.CircleBufferGeometry(5, 32);
     //var material = new THREE.MeshStandardMaterial( {color: "gold", side: THREE.DoubleSide} );
     //var material = new THREE.MeshBasicMaterial( {color: "gold"} );
     var map = new THREE.TextureLoader().load('LOGO_InnovaINDIE_SQ.png');
@@ -377,13 +405,15 @@ function initPlacasEspaciosCulturales() {
      */
     map.anisotropy = renderer.getMaxAnisotropy();
     var material = new THREE.MeshBasicMaterial({map: map, side: THREE.SingleSide});
+    var alturaExtra = 18;
     /**
      * Placa MUAC
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-80, 30, -90);
+    circle.position.set(-80, alturaExtra, -90);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
+    circle.name = "MUAC";
     scene.add(circle);
     meshPlacaEspacioCultural.push(circle);
 
@@ -391,10 +421,11 @@ function initPlacasEspaciosCulturales() {
      * Placa Explanada
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-80, 30, -35);
+    circle.position.set(-80, alturaExtra, -35);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     circle.castShadow = false;
+    circle.name = "ExplanadaEspiga";
     scene.add(circle);
     meshPlacaEspacioCultural.push(circle);
 
@@ -402,7 +433,7 @@ function initPlacasEspaciosCulturales() {
      * Placa Cines
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-75, 30, 18);
+    circle.position.set(-75, alturaExtra, 18);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -412,7 +443,7 @@ function initPlacasEspaciosCulturales() {
      * Sala Carlos Chaves
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-30, 30, 43);
+    circle.position.set(-30, alturaExtra, 43);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -422,7 +453,7 @@ function initPlacasEspaciosCulturales() {
      * Sala Miguel Covarruvias
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-53, 30, 78);
+    circle.position.set(-53, alturaExtra, 78);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -432,7 +463,7 @@ function initPlacasEspaciosCulturales() {
      * Salón de danza
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-47, 30, 104);
+    circle.position.set(-47, alturaExtra, 104);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -442,7 +473,7 @@ function initPlacasEspaciosCulturales() {
      * Sala neza
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(10, 30, -40);
+    circle.position.set(10, alturaExtra, -40);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -452,7 +483,7 @@ function initPlacasEspaciosCulturales() {
      * Foro sor juana
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(13, 30, 15);
+    circle.position.set(13, alturaExtra, 15);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -462,7 +493,7 @@ function initPlacasEspaciosCulturales() {
      * Teatro Juan Ruiz
      */
     var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(12, 30, 50);
+    circle.position.set(12, alturaExtra, 50);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
     scene.add(circle);
@@ -543,7 +574,7 @@ function initDummies() {
      * @edit 20-07-25
      * Dummie Cines
      */
-    var geometry = new THREE.BoxBufferGeometry(44, 13, 30, 4, 4, 4);
+    var geometry = new THREE.BoxBufferGeometry(44, 13, alturaExtra, 4, 4, 4);
     var dummie = new THREE.Mesh(geometry, matConcreto);
     dummie.position.set(-65, 0, 10);
     dummie.receiveShadow = true;
@@ -664,28 +695,9 @@ function initControlesOrbitalesDesarrollo() {
     controls.minDistance = 1;
     controls.maxDistance = 400;
 
-    controls.maxPolarAngle = Math.PI / 2;
+    controls.maxPolarAngle = Math.PI;
 }
 
-/**
- * @since 20-07-26
- */
-function initControlesOrbitalesTomaFija() {
-    controls = new OrbitControls(camera, renderer.domElement);
-
-    controls.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
-
-    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-    //controls.dampingFactor = 0.05;
-    controls.dampingFactor = 0.1;
-
-    controls.screenSpacePanning = false;
-
-    controls.minDistance = 10;
-    controls.maxDistance = 40;
-
-    controls.maxPolarAngle = Math.PI / 2;
-}
 
 /**
  * @since 20-07-24
@@ -715,4 +727,55 @@ function initPisoCircular() {
     circle.receiveShadow = false;
     //circle.receiveShadow = false;
     scene.add(circle);
+}
+
+/**
+ * @since 20-06-08
+ * @edit 20-07-27
+ * @param {type} event
+ * @returns {onDocumentMouseDown}
+ */
+function onDocumentMouseDown(event) {
+    //console.log("click");
+
+    event.preventDefault();
+    //mouse.x = (event.clientX / renderer.domElement.width) * 2 - 1;
+    //mouse.y = (event.clientY / renderer.domElement.height) * 2 - 1;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    var intersects = raycaster.intersectObjects(meshPlacaEspacioCultural);
+    //console.log("intersects.length:"+intersects.length);
+    //var color = Math.random() * 0xffffff;
+    if (intersects.length > 0) {
+        if (intersects[0].object.name) {
+            this.name = intersects[0].object.name;
+            window.parent.postMessage(this.name, 'http://dvlp.d');
+        }
+        switch (intersects[0].object.name) {
+            case "Piso":
+                break;
+            case "ExplanadaEspiga":
+                this.name = intersects[0].object.name;
+                //window.parent.postMessage(this.name, 'http://dvlp.d');
+                break;
+            default:
+                //intersects[0].object.material.color.setHex(color);
+                //this.temp = intersects[0].object.material.color.getHexString();
+                this.name = intersects[0].object.name;
+                console.log(this.name);
+
+                //doc.functionTest(intersects[0].object.name);
+                //var modalBody = doc.getElementsByClassName("modal-body"); 
+                //modalBody.innerHTML = "<p>"+intersects[0].object.name+"</p>";
+                //window.parent.postMessage(this.name, 'http://dvlp.d');
+                //$("#SingleModal .modal-body").html("<p>"+intersects[0].object.name+"</p>");
+                //$('#SingleModal').modal('show');
+                //var modalById = doc.getElementById("SingleModal");
+                //modalById.modal('show');
+                break;
+        }
+    }
 }
