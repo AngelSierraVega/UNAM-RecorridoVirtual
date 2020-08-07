@@ -12,9 +12,9 @@
  * ModeloCentrado_SFI
  * ModeloCentrado_DF
  */
-const modelName = 'ModeloCentrado_DF';
+const modelName = 'CCU_0608_8';
 
-const CONFIG_SOMBRAS = false;
+const CONFIG_SOMBRAS = true;
 const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
 const CONFIG_HELPERS = false;
 const CONFIG_DEBUG = false;
@@ -22,6 +22,7 @@ const CONFIG_DEBUG = false;
 const COLOR_TIERRA = "darkolivegreen";
 const COLOR_CIELO = "lightcyan";//lightskyblue
 const COLOR_LUZCIELO = "azure";//Light Cyan
+const COLOR_LUZFONDO = "lightblue";//"aliceblue"
 
 //import default from '/UNAM/RecorridoVirtual/public/modules/luces.js';
 
@@ -128,7 +129,8 @@ function init() {
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
-    document.addEventListener('mousedown', onDocumentMouseDown, false);
+    window.addEventListener('mousedown', onDocumentMouseDown, false);
+    window.addEventListener("touchend", onDocumentMouseDown, false);
 }
 
 /**
@@ -187,11 +189,11 @@ function initCamaraDefault() {
 function initFondoCieloSimulado() {
     scene.background = new THREE.Color(COLOR_CIELO);//https://en.wikipedia.org/wiki/X11_color_names
     //scene.fog = new THREE.Fog( scene.background, 1, 5000 );
-    hemiLight = new THREE.HemisphereLight(COLOR_CIELO, COLOR_TIERRA, 0.8);
+    hemiLight = new THREE.HemisphereLight(COLOR_LUZFONDO, COLOR_TIERRA, 0.8);
     //hemiLight.color.setHSL( 0.6, 1, 0.6 );
     //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set(0, 20, 0);
-    scene.add(hemiLight);
+    //scene.add(hemiLight);
     if (CONFIG_HELPERS) {
         hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 3);
         scene.add(hemiLightHelper);
@@ -268,8 +270,9 @@ function initModeloFinal() {
         object3d.traverse(child => {
             if (child.material) {
                 child.material.reflectivity = 0; //The default value is 1
-                child.material.shininess = 1; //Default is 30
+                child.material.shininess = 0; //Default is 30
                 child.material.side = THREE.SingleSide;
+                //child.material.side = THREE.DoubleSide;
                 //child.material.wireframe = true;
                 if (CONFIG_SOMBRAS) {
                     child.receiveShadow = true;
@@ -309,7 +312,8 @@ function initLuzFocalPrimaria() {
     light.position.set(-10, 120, -10);
     scene.add(light);
     light.angle = Math.PI / 2.6;
-    light.penumbra = 0.5;
+    light.penumbra = 1;
+    light.power = Math.PI /1.3;//Default is 4Math.PI. 
     if (CONFIG_HELPERS) {
         var LightHeper = new THREE.SpotLightHelper(light, 3);
         scene.add(LightHeper);
@@ -321,6 +325,7 @@ function initLuzFocalPrimaria() {
         light.shadow.camera.near = 30;
         light.shadow.camera.far = 300;
         //light.shadow.camera.fov = 10;
+        light.shadow.bias = 0.00001;//The default is 0
     }
 }
 
@@ -524,8 +529,9 @@ function initDummies() {
     var map = new THREE.TextureLoader().load(modelName + '/Concrete_Scored_Jointless.jpg');
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
-    var matConcreto = new THREE.MeshStandardMaterial({map: map, side: THREE.SingleSide});
-
+    var matConcreto = new THREE.MeshPhongMaterial({map: map, side: THREE.SingleSide});
+    matConcreto.reflectivity = 0; //The default value is 1
+    matConcreto.shininess = 0;
     /**
      * @edit 20-07-24
      * Textura
@@ -533,7 +539,9 @@ function initDummies() {
     var map = new THREE.TextureLoader().load(modelName + '/Polished_Concrete_New.jpg');
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
-    var matConcretoPulido = new THREE.MeshStandardMaterial({map: map, side: THREE.SingleSide});
+    var matConcretoPulido = new THREE.MeshPhongMaterial({map: map, side: THREE.SingleSide});
+    matConcretoPulido.reflectivity = 0; //The default value is 1
+    matConcretoPulido.shininess = 0;
 
     /**
      * @edit 20-07-24
@@ -542,7 +550,9 @@ function initDummies() {
     var map = new THREE.TextureLoader().load(modelName + '/Cladding_Stucco_White.jpg');
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
-    var matStucco = new THREE.MeshStandardMaterial({map: map, side: THREE.SingleSide});
+    var matStucco = new THREE.MeshPhongMaterial({map: map, side: THREE.SingleSide});
+    matStucco.reflectivity = 0; //The default value is 1
+    matStucco.shininess = 0;
 
 
     var sphereGeometry = new THREE.SphereBufferGeometry(5, 32, 32);
@@ -574,7 +584,7 @@ function initDummies() {
      * @edit 20-07-25
      * Dummie Cines
      */
-    var geometry = new THREE.BoxBufferGeometry(44, 13, alturaExtra, 4, 4, 4);
+    var geometry = new THREE.BoxBufferGeometry(44, 13, 20, 4, 4, 4);
     var dummie = new THREE.Mesh(geometry, matConcreto);
     dummie.position.set(-65, 0, 10);
     dummie.receiveShadow = true;
@@ -752,7 +762,9 @@ function onDocumentMouseDown(event) {
     if (intersects.length > 0) {
         if (intersects[0].object.name) {
             this.name = intersects[0].object.name;
-            window.parent.postMessage(this.name, 'http://dvlp.d');
+            //window.parent.postMessage(this.name, 'http://dvlp.d');
+            window.parent.postMessage(this.name, "*");
+            
         }
         switch (intersects[0].object.name) {
             case "Piso":

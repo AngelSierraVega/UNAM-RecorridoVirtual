@@ -28,3 +28,40 @@ THREE.WebGLRenderer: Texture has been resized from (146x150) to (128x128). 2 thr
 THREE.WebGLRenderer: Texture has been resized from (2892x4096) to (2048x4096). three.module.js:21454:13
 THREE.WebGLRenderer: Texture has been resized from (576x576) to (512x512). three.module.js:21454:13
 THREE.WebGLRenderer: Texture has been resized from (600x600) to (512x512).
+
+
+
+20-08-07
+
+- Mover no los ejes, sino el modelo mismo ya que el modelo se carga siempre en las coordenadas del eje original. Ojo con la altura.
+- Exportar con configuración específica. Solicitar MTL y carpeta de texturas en el OBJ. (El 15 termina mi licencia).
+- Las texturas necesitan reescalarse a base 2 (128, 256, 512, 1024, etc) no nesariamente tienen que ser cuadradas.
+
+THREE.WebGLRenderer: Texture has been resized from (384x512) to (256x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (500x500) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (1200x1185) to (1024x1024). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (530x530) to (512x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (600x600) to (512x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (185x128) to (128x128). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (256x384) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (450x450) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (400x400) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (600x600) to (512x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (144x144) to (128x128). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (150x151) to (128x128). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (500x281) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (443x443) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (600x600) to (512x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (500x500) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (150x150) to (128x128). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (168x336) to (128x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (833x833) to (512x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (576x576) to (512x512). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (146x150) to (128x128). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (350x350) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (484x373) to (256x256). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (146x150) to (128x128). three.module.js:21454:13
+THREE.WebGLRenderer: Texture has been resized from (600x600) to (512x512). three.module.js:21454:13
+
+​
+
