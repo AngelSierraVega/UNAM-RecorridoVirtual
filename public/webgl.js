@@ -1,23 +1,26 @@
-/* 
+/** 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
-
-
-
 /**
  * ModeloCentrado_SF
  * ModeloCentrado_SFI
  * ModeloCentrado_DF
+ * CCU_0608_8
+ * CCU version 1408
+ * 
+ * CCU triangular 1708
+ * CCU mapas 2 lados 1708
  */
-const modelName = 'CCU_0608_8';
+const modelName = 'CCU triangular 1708';
 
 const CONFIG_SOMBRAS = true;
 const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
 const CONFIG_HELPERS = false;
 const CONFIG_DEBUG = false;
+const CONFIG_DOBLE_CARA = true;
 
 const COLOR_TIERRA = "darkolivegreen";
 const COLOR_CIELO = "lightcyan";//lightskyblue
@@ -48,8 +51,7 @@ import { MtlObjBridge } from "/UNAM/RecorridoVirtual/jsm/loaders/obj2/bridge/Mtl
 //import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
 import { RGBELoader } from '/UNAM/RecorridoVirtual/jsm/loaders/RGBELoader.js';
 
-var camera, controls, scene, renderer;
-var CamaraDesarrollo;
+var camera, ControlesOrbitales, scene, renderer;
 
 
 /**
@@ -87,16 +89,8 @@ function init() {
     /**
      * Camara
      */
-    //initCamaraTop();
-    initCamaraDefault();
+    initCamara();
     //initCamaraDesarrollo();
-    //initCamaraToma01();
-    //camera = CamaraDesarrollo;
-    /**
-     * Controles
-     */
-    //initControlesOrbitalesDesarrollo();
-    //initControlesOrbitalesTomaFija();
     /**
      * Mundo
      */
@@ -137,11 +131,12 @@ function init() {
  * @since 20-06-20
  */
 function initCamaraDesarrollo() {
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight);
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight);
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
     }
+    setControlesOrbitalesDesarrollo();
 }
 
 /**
@@ -150,7 +145,7 @@ function initCamaraDesarrollo() {
 function initCamaraToma01() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 400);
     if (CONFIG_HELPERS) {
-        var cameraHelper = new THREE.CameraHelper(CamaraDesarrollo);
+        var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
     }
 }
@@ -158,28 +153,58 @@ function initCamaraToma01() {
 /**
  * @since 20-06-20
  * @edit 20-07-27
+ * @edit 20-08-09
  */
-function initCamaraDefault() {
+function initCamara() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.set(10, 0, 5);
-    //camera.zoom = 50;
+    //camera.position.set(10, 0, 5);
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
     }
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
+    setControlesOrbitales();
+}
 
-    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-    //controls.dampingFactor = 0.05;
-    controls.dampingFactor = 0.1;
-    //controls.zoom0
-    controls.screenSpacePanning = false;
+/**
+ * @since 20-08-09
+ * @returns {undefined}
+ */
+function setControlesOrbitales() {
+    ControlesOrbitales = new OrbitControls(camera, renderer.domElement);
+    ControlesOrbitales.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
 
-    controls.minDistance = 1;
-    controls.maxDistance = 400;
+    //ControlesOrbitales.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    //ControlesOrbitales.dampingFactor = 0.05;
+    //ControlesOrbitales.dampingFactor = 0.1;
+    //ControlesOrbitales.zoom0
+    ControlesOrbitales.screenSpacePanning = false;
 
-    controls.maxPolarAngle = Math.PI / 2;
+    ControlesOrbitales.minDistance = 10;
+    ControlesOrbitales.maxDistance = 400;
+    //ControlesOrbitales.
+
+    //ControlesOrbitales.maxPolarAngle = Math.PI / 2;
+
+    //ControlesOrbitales.enableZoom = false;
+}
+
+/**
+ * @since 20-07-12
+ */
+function setControlesOrbitalesDesarrollo() {
+    ControlesOrbitales = new OrbitControls(camera, renderer.domElement);
+
+    ControlesOrbitales.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
+
+    ControlesOrbitales.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    ControlesOrbitales.dampingFactor = 0.05;
+
+    ControlesOrbitales.screenSpacePanning = false;
+
+    ControlesOrbitales.minDistance = 1;
+    ControlesOrbitales.maxDistance = 400;
+
+    ControlesOrbitales.maxPolarAngle = Math.PI;
 }
 
 /**
@@ -271,7 +296,11 @@ function initModeloFinal() {
             if (child.material) {
                 child.material.reflectivity = 0; //The default value is 1
                 child.material.shininess = 0; //Default is 30
-                child.material.side = THREE.SingleSide;
+                if (CONFIG_DOBLE_CARA) {
+                    child.material.side = THREE.DoubleSide;
+                }else{
+                    child.material.side = THREE.SingleSide;
+                }
                 //child.material.side = THREE.DoubleSide;
                 //child.material.wireframe = true;
                 if (CONFIG_SOMBRAS) {
@@ -291,7 +320,7 @@ function initModeloFinal() {
         objLoader2.setLogging(CONFIG_DEBUG, CONFIG_DEBUG);
         objLoader2.addMaterials(MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult), true);
         //console.log(mtlParseResult);
-        objLoader2.load(modelName + '.obj', callbackOnLoad, null, null, null);
+        objLoader2.load("assets/3dmodel/" + modelName + '.obj', callbackOnLoad, null, null, null);
 //                                        scene.traverse(function(children){
 //                                                objects.push(children);
 //                                        });
@@ -299,7 +328,7 @@ function initModeloFinal() {
     };
     let mtlLoader = new MTLLoader();
     //mtlLoader.setMaterialOptions({side: THREE.SingleSide});
-    mtlLoader.load(modelName + '.mtl', onLoadMtl);
+    mtlLoader.load("assets/3dmodel/" + modelName + '.mtl', onLoadMtl);
 }
 
 
@@ -313,7 +342,7 @@ function initLuzFocalPrimaria() {
     scene.add(light);
     light.angle = Math.PI / 2.6;
     light.penumbra = 1;
-    light.power = Math.PI /1.3;//Default is 4Math.PI. 
+    light.power = Math.PI / 1.3;//Default is 4Math.PI. 
     if (CONFIG_HELPERS) {
         var LightHeper = new THREE.SpotLightHelper(light, 3);
         scene.add(LightHeper);
@@ -526,7 +555,7 @@ function initDummies() {
      * @edit 20-07-24
      * Textura
      */
-    var map = new THREE.TextureLoader().load(modelName + '/Concrete_Scored_Jointless.jpg');
+    var map = new THREE.TextureLoader().load("assets/3dmodel/" + modelName + '/Concrete_Scored_Jointless.jpg');
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
     var matConcreto = new THREE.MeshPhongMaterial({map: map, side: THREE.SingleSide});
@@ -536,7 +565,7 @@ function initDummies() {
      * @edit 20-07-24
      * Textura
      */
-    var map = new THREE.TextureLoader().load(modelName + '/Polished_Concrete_New.jpg');
+    var map = new THREE.TextureLoader().load("assets/3dmodel/" + modelName + '/Polished_Concrete_New.jpg');
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
     var matConcretoPulido = new THREE.MeshPhongMaterial({map: map, side: THREE.SingleSide});
@@ -547,7 +576,7 @@ function initDummies() {
      * @edit 20-07-24
      * Textura Cladding_Stucco_White
      */
-    var map = new THREE.TextureLoader().load(modelName + '/Cladding_Stucco_White.jpg');
+    var map = new THREE.TextureLoader().load("assets/3dmodel/" + modelName + '/Cladding_Stucco_White.jpg');
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
     var matStucco = new THREE.MeshPhongMaterial({map: map, side: THREE.SingleSide});
@@ -637,7 +666,7 @@ function animate() {
 
     requestAnimationFrame(animate);
 
-    controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+    ControlesOrbitales.update(); // only required if ControlesOrbitales.enableDamping = true, or if ControlesOrbitales.autoRotate = true
     animPlacas();
     render();
 
@@ -688,26 +717,6 @@ function initEscena() {
 
     document.body.appendChild(renderer.domElement);
 }
-
-/**
- * @since 20-07-12
- */
-function initControlesOrbitalesDesarrollo() {
-    controls = new OrbitControls(camera, renderer.domElement);
-
-    controls.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
-
-    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-    controls.dampingFactor = 0.05;
-
-    controls.screenSpacePanning = false;
-
-    controls.minDistance = 1;
-    controls.maxDistance = 400;
-
-    controls.maxPolarAngle = Math.PI;
-}
-
 
 /**
  * @since 20-07-24
@@ -762,9 +771,10 @@ function onDocumentMouseDown(event) {
     if (intersects.length > 0) {
         if (intersects[0].object.name) {
             this.name = intersects[0].object.name;
-            //window.parent.postMessage(this.name, 'http://dvlp.d');
-            window.parent.postMessage(this.name, "*");
-            
+            //window.parent.postMessage(this.name, "*");
+
+            moveCameraTo(intersects[0].object);
+
         }
         switch (intersects[0].object.name) {
             case "Piso":
@@ -790,4 +800,21 @@ function onDocumentMouseDown(event) {
                 break;
         }
     }
+}
+/**
+ * @since 20-08-09
+ * @param {type} object
+ * @returns {undefined}
+ */
+function moveCameraTo(object) {
+    //console.log(ControlesOrbitales);
+    //console.log(ControlesOrbitales.target);
+    //console.log(object.position);
+    //ControlesOrbitales.target.position.set(object.position.x, object.position.z, object.position.y);
+    //ControlesOrbitales.target.set(object.position.x, object.position.z, object.position.y);
+    ControlesOrbitales.target.x = object.position.x;
+    ControlesOrbitales.target.y = object.position.y;
+    ControlesOrbitales.target.z = object.position.z;
+    //ControlesOrbitales.target = object.position;
+    //ControlesOrbitales.
 }
