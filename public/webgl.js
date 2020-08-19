@@ -14,11 +14,11 @@
  * CCU triangular 1708
  * CCU mapas 2 lados 1708
  */
-const modelName = 'CCU triangular 1708';
+const modelName = 'CCU3d';
 
 const CONFIG_SOMBRAS = true;
 const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
-const CONFIG_HELPERS = false;
+const CONFIG_HELPERS = true;
 const CONFIG_DEBUG = false;
 const CONFIG_DOBLE_CARA = true;
 
@@ -43,6 +43,8 @@ import { OrbitControls } from '/UNAM/RecorridoVirtual/jsm/controls/OrbitControls
 import { MTLLoader } from "/UNAM/RecorridoVirtual/jsm/loaders/MTLLoader.js";
 import { OBJLoader2 } from "/UNAM/RecorridoVirtual/jsm/loaders/OBJLoader2.js";
 import { MtlObjBridge } from "/UNAM/RecorridoVirtual/jsm/loaders/obj2/bridge/MtlObjBridge.js";
+
+import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
 
 /**
  * Code for HDRI
@@ -75,6 +77,49 @@ var meshPlacaEspacioCultural = [];
 var ifrm = window.frameElement; // reference to iframe element container
 var doc = ifrm.ownerDocument;// reference to container's document
 
+var CustomTarget = {
+    "x": null
+    , "y": null
+    , "z": null
+    , "stepX": null
+    , "stepY": null
+    , "stepZ": null
+};
+
+/**
+ * 
+ * @type type
+ * @since 20-08-18
+ */
+var puntosInteresEC2 = {
+    "MUAC": {x: -80, y: 18, z: -90, "icono": "IC_MUAC.png", "xIdEC": "MUAC"}
+    , "ExplanadaEspiga": {x: -70, y: 18, z: -50, "icono": "IC_ExplanadaEspiga.png", "xIdEC": "ExplanadaEspiga"}
+    , "Cines": {x: -65, y: 18, z: 3, "icono": "IC_Cines.png", "xIdEC": "Cines"}
+    , "SalaCarlosChaves": {x: -20, y: 18, z: 28, "icono": "IC_SalaCarlosChaves.png", "xIdEC": "SalaCarlosChaves"}
+    , "SalaMiguelCovarrubias": {x: -43, y: 18, z: 63, "icono": "IC_SalaMiguelCovarrubias.png", "xIdEC": "SalaMiguelCovarrubias"}
+    , "SalonDanza": {x: -37, y: 18, z: 89, "icono": "IC_SalonDanza.png", "xIdEC": "SalonDanza"}
+    , "TeatroJuanRuiz": {x: 20, y: 18, z: -55, "icono": "IC_TeatroJuanRuiz.png", "xIdEC": "TeatroJuanRuiz"}
+    , "ForoSorJuana": {x: 23, y: 18, z: 0, "icono": "IC_ForoSorJuana.png", "xIdEC": "ForoSorJuana"}
+    , "SalaNeza": {x: 22, y: 18, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
+};
+
+var puntosInteresEC = {
+    "MUAC": {x: -45, y: 7, z: -65, "icono": "IC_MUAC.png", "xIdEC": "MUAC"}
+    , "ExplanadaEspiga": {x: -70, y: 18, z: -50, "icono": "IC_ExplanadaEspiga.png", "xIdEC": "ExplanadaEspiga"}
+    , "Cines": {x: -54, y: 3, z: 16, "icono": "IC_Cines.png", "xIdEC": "Cines"}
+    , "SalaCarlosChaves": {x: -20, y: 18, z: 28, "icono": "IC_SalaCarlosChaves.png", "xIdEC": "SalaCarlosChaves"}
+    , "SalaMiguelCovarrubias": {x: -43, y: 18, z: 63, "icono": "IC_SalaMiguelCovarrubias.png", "xIdEC": "SalaMiguelCovarrubias"}
+    , "SalonDanza": {x: -37, y: 18, z: 89, "icono": "IC_SalonDanza.png", "xIdEC": "SalonDanza"}
+    , "TeatroJuanRuiz": {x: 20, y: 18, z: -55, "icono": "IC_TeatroJuanRuiz.png", "xIdEC": "TeatroJuanRuiz"}
+    , "ForoSorJuana": {x: 23, y: 18, z: 0, "icono": "IC_ForoSorJuana.png", "xIdEC": "ForoSorJuana"}
+    , "SalaNeza": {x: 22, y: 18, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
+};
+
+
+
+
+var panel;
+
 init();
 //render(); // remove when using next line for animation loop (requestAnimationFrame)
 animate();
@@ -90,6 +135,7 @@ function init() {
      * Camara
      */
     initCamara();
+    createPanel();
     //initCamaraDesarrollo();
     /**
      * Mundo
@@ -113,6 +159,13 @@ function init() {
     //initLuzDireccionalPrimaria();
     //initLuzPuntualPrimaria();
     //initLuzFocalPrimaria();
+
+    console.log(panel);
+    var folder = panel.__folders[Object.keys(panel.__folders)[1]];
+    console.log(folder);
+    var controlador = folder.__controllers[Object.keys(folder.__controllers)[0]]
+    console.log(controlador);
+
     /**
      * Eventos
      */
@@ -123,8 +176,40 @@ function init() {
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
+
+    //gui.
+
     window.addEventListener('mousedown', onDocumentMouseDown, false);
     window.addEventListener("touchend", onDocumentMouseDown, false);
+}
+
+function createPanel() {
+    var paramsGui = {
+        'TargetX': 0,
+        'TargetY': 0,
+        'TargetZ': 0
+        , 'FOV': 45
+    };
+    //var panel = new GUI();
+    panel = new GUI({width: 310});
+
+    var folder1 = panel.addFolder('Visibilidad(DEMO)');
+    var folder2 = panel.addFolder('Cámara');
+
+    folder2.add(paramsGui, 'TargetX').listen();
+    folder2.add(paramsGui, 'TargetY').listen();
+    folder2.add(paramsGui, 'TargetZ').listen();
+    folder2.add(paramsGui, 'FOV', 10, 90).listen().onChange(function (value) {
+        //render();
+        camera.fov = value;
+        camera.updateProjectionMatrix();
+    });
+//    folder2.add(paramsGui, 'FOV').onChange(function (value) {
+//        console.log(value);
+//        camera.fov = value;
+//    });
+
+    folder2.open();
 }
 
 /**
@@ -179,13 +264,16 @@ function setControlesOrbitales() {
     //ControlesOrbitales.zoom0
     ControlesOrbitales.screenSpacePanning = false;
 
-    ControlesOrbitales.minDistance = 10;
-    ControlesOrbitales.maxDistance = 400;
+    ControlesOrbitales.minDistance = 5;
+    ControlesOrbitales.maxDistance = 15;
     //ControlesOrbitales.
+    CustomTarget.x = ControlesOrbitales.target.x;
+    CustomTarget.y = ControlesOrbitales.target.y;
+    CustomTarget.z = ControlesOrbitales.target.z;
 
     //ControlesOrbitales.maxPolarAngle = Math.PI / 2;
 
-    //ControlesOrbitales.enableZoom = false;
+    ControlesOrbitales.enableZoom = true;
 }
 
 /**
@@ -296,13 +384,13 @@ function initModeloFinal() {
             if (child.material) {
                 child.material.reflectivity = 0; //The default value is 1
                 child.material.shininess = 0; //Default is 30
+                child.material.wireframe = false;
+                child.material.vertexColors = false;
                 if (CONFIG_DOBLE_CARA) {
                     child.material.side = THREE.DoubleSide;
-                }else{
+                } else {
                     child.material.side = THREE.SingleSide;
                 }
-                //child.material.side = THREE.DoubleSide;
-                //child.material.wireframe = true;
                 if (CONFIG_SOMBRAS) {
                     child.receiveShadow = true;
                     child.castShadow = true;
@@ -387,10 +475,10 @@ function initLuzPuntualPrimaria() {
 function initIluminacionSimple() {
     var light = new THREE.AmbientLight(0xffffff);
     scene.add(light);
-    if (CONFIG_HELPERS) {
-        var dirLightHeper = new THREE.AmbientLightHelper(light, 3);
-        scene.add(dirLightHeper);
-    }
+//    if (CONFIG_HELPERS) {
+//        var dirLightHeper = new THREE.AmbientLightHelper(light, 3);
+//        scene.add(dirLightHeper);
+//    }
     scene.background = new THREE.Color(COLOR_CIELO);
 }
 
@@ -416,18 +504,20 @@ function initLuzDireccionalPrimaria() {
     }
 }
 
-
+/**
+ * 
+ * @type THREE.CircleBufferGeometry
+ * @since 20-08-18
+ */
+var geometriaPuntoInteres;
 
 /**
- * @since 19-07-25
- * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
+ * @since 20-08-18
+ * @param Object puntoInteres
+ * @returns {undefined}
  */
-function initPlacasEspaciosCulturales() {
-    var geometry = new THREE.CircleBufferGeometry(5, 32);
-    //var material = new THREE.MeshStandardMaterial( {color: "gold", side: THREE.DoubleSide} );
-    //var material = new THREE.MeshBasicMaterial( {color: "gold"} );
-    var map = new THREE.TextureLoader().load('LOGO_InnovaINDIE_SQ.png');
-    //map.wrapS = map.wrapT = THREE.RepeatWrapping;
+function addPuntoInteres(puntoInteres) {
+    var map = new THREE.TextureLoader().load("assets/icons/" + puntoInteres.icono);
     /**
      * The number of samples taken along the axis through the 
      * pixel that has the highest density of texels. By default, 
@@ -437,101 +527,36 @@ function initPlacasEspaciosCulturales() {
      * find the maximum valid anisotropy value for the GPU; this 
      * value is usually a power of 2. 
      */
-    map.anisotropy = renderer.getMaxAnisotropy();
+    map.anisotropy = renderer.capabilities.getMaxAnisotropy();
     var material = new THREE.MeshBasicMaterial({map: map, side: THREE.SingleSide});
-    var alturaExtra = 18;
-    /**
-     * Placa MUAC
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-80, alturaExtra, -90);
+    var circle = new THREE.Mesh(geometriaPuntoInteres, material);
+    circle.position.set(puntoInteres.x, puntoInteres.y, puntoInteres.z);
     circle.rotateX(Math.PI / 2);
     circle.receiveShadow = false;
-    circle.name = "MUAC";
+    circle.name = puntoInteres.xIdEC;
     scene.add(circle);
     meshPlacaEspacioCultural.push(circle);
+}
 
-    /**
-     * Placa Explanada
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-80, alturaExtra, -35);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    circle.castShadow = false;
-    circle.name = "ExplanadaEspiga";
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
 
-    /**
-     * Placa Cines
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-75, alturaExtra, 18);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
 
-    /**
-     * Sala Carlos Chaves
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-30, alturaExtra, 43);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
-
-    /**
-     * Sala Miguel Covarruvias
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-53, alturaExtra, 78);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
-
-    /**
-     * Salón de danza
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(-47, alturaExtra, 104);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
-
-    /**
-     * Sala neza
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(10, alturaExtra, -40);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
-
-    /**
-     * Foro sor juana
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(13, alturaExtra, 15);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
-
-    /**
-     * Teatro Juan Ruiz
-     */
-    var circle = new THREE.Mesh(geometry, material);
-    circle.position.set(12, alturaExtra, 50);
-    circle.rotateX(Math.PI / 2);
-    circle.receiveShadow = false;
-    scene.add(circle);
-    meshPlacaEspacioCultural.push(circle);
+/**
+ * @since 20-07-25
+ * @edit 20-08-08
+ * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
+ */
+function initPlacasEspaciosCulturales() {
+    geometriaPuntoInteres = new THREE.CircleBufferGeometry(1.5, 32);
+    //geometriaPuntoInteres = new THREE.CircleBufferGeometry(5, 32);
+    addPuntoInteres(puntosInteresEC.MUAC);
+    addPuntoInteres(puntosInteresEC.ExplanadaEspiga);
+    addPuntoInteres(puntosInteresEC.Cines);
+    addPuntoInteres(puntosInteresEC.SalaCarlosChaves);
+    addPuntoInteres(puntosInteresEC.SalaMiguelCovarrubias);
+    addPuntoInteres(puntosInteresEC.SalonDanza);
+    addPuntoInteres(puntosInteresEC.TeatroJuanRuiz);
+    addPuntoInteres(puntosInteresEC.ForoSorJuana);
+    addPuntoInteres(puntosInteresEC.SalaNeza);
 }
 
 /**
@@ -661,15 +686,32 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
-
+/**
+ * 
+ * @returns {undefined}
+ * @since 20-06-01
+ * @edit 20-08-19
+ */
 function animate() {
-
     requestAnimationFrame(animate);
-
     ControlesOrbitales.update(); // only required if ControlesOrbitales.enableDamping = true, or if ControlesOrbitales.autoRotate = true
+    animCamera();
     animPlacas();
+    animPanel();
     render();
+}
 
+/**
+ * 
+ * @returns {undefined}
+ * @since 20-08-19
+ */
+function animPanel() {
+    var folder = panel.__folders[Object.keys(panel.__folders)[1]];
+    var controlador = folder.__controllers[Object.keys(folder.__controllers)[0]];
+    controlador.object.TargetX = ControlesOrbitales.target.x;
+    controlador.object.TargetY = ControlesOrbitales.target.y;
+    controlador.object.TargetZ = ControlesOrbitales.target.z;
 }
 
 /**
@@ -677,8 +719,8 @@ function animate() {
  * @since 20-07-25
  */
 function animPlacas() {
-    meshPlacaEspacioCultural.forEach(function myFunction(value, index, array) {
-        value.lookAt(camera.position);
+    meshPlacaEspacioCultural.forEach(function myFunction(object) {
+        object.lookAt(camera.position);
     });
 }
 
@@ -724,8 +766,8 @@ function initEscena() {
  */
 function initMalla() {
     var helper = new THREE.GridHelper(286, 286);
-    helper.material.opacity = 0.25;
-    helper.material.transparent = true;
+    helper.material.opacity = 1;
+    helper.material.transparent = false;
     scene.add(helper);
 }
 
@@ -775,11 +817,12 @@ function onDocumentMouseDown(event) {
 
             moveCameraTo(intersects[0].object);
 
+
         }
         switch (intersects[0].object.name) {
-            case "Piso":
+            case "Piso2":
                 break;
-            case "ExplanadaEspiga":
+            case "ExplanadaEspiga2":
                 this.name = intersects[0].object.name;
                 //window.parent.postMessage(this.name, 'http://dvlp.d');
                 break;
@@ -788,6 +831,7 @@ function onDocumentMouseDown(event) {
                 //this.temp = intersects[0].object.material.color.getHexString();
                 this.name = intersects[0].object.name;
                 console.log(this.name);
+                console.log(intersects[0].object.position);
 
                 //doc.functionTest(intersects[0].object.name);
                 //var modalBody = doc.getElementsByClassName("modal-body"); 
@@ -807,14 +851,80 @@ function onDocumentMouseDown(event) {
  * @returns {undefined}
  */
 function moveCameraTo(object) {
-    //console.log(ControlesOrbitales);
-    //console.log(ControlesOrbitales.target);
-    //console.log(object.position);
-    //ControlesOrbitales.target.position.set(object.position.x, object.position.z, object.position.y);
-    //ControlesOrbitales.target.set(object.position.x, object.position.z, object.position.y);
-    ControlesOrbitales.target.x = object.position.x;
-    ControlesOrbitales.target.y = object.position.y;
-    ControlesOrbitales.target.z = object.position.z;
-    //ControlesOrbitales.target = object.position;
-    //ControlesOrbitales.
+    CustomTarget.x = object.position.x;
+    CustomTarget.y = object.position.y;
+    CustomTarget.z = object.position.z;
+    var distanciaX = (object.position.x - ControlesOrbitales.target.x);
+    var distanciaY = (object.position.y - ControlesOrbitales.target.y);
+    var distanciaZ = (object.position.z - ControlesOrbitales.target.z);
+    CustomTarget.stepX = (Math.abs(distanciaX) / 24);
+    CustomTarget.stepY = (Math.abs(distanciaY) / 24);
+    CustomTarget.stepZ = (Math.abs(distanciaZ) / 24);
+}
+
+/**
+ * 
+ * @returns {undefined}
+ * @since 20-08-19
+ */
+function animCamera() {
+
+    var changed = false;
+
+    if (CustomTarget.x > ControlesOrbitales.target.x) {
+        changed = true;
+        ControlesOrbitales.target.x += CustomTarget.stepX;
+        if (ControlesOrbitales.target.x > CustomTarget.x) {
+            ControlesOrbitales.target.x = CustomTarget.x;
+        }
+    } else if (CustomTarget.x < ControlesOrbitales.target.x) {
+        changed = true;
+        ControlesOrbitales.target.x -= CustomTarget.stepX;
+        if (ControlesOrbitales.target.x < CustomTarget.x) {
+            ControlesOrbitales.target.x = CustomTarget.x;
+        }
+    }
+//    if(CustomTarget.x != ControlesOrbitales.target.x){
+//        ControlesOrbitales.target.x = CustomTarget.x;
+//    }
+    if (CustomTarget.y > ControlesOrbitales.target.y) {
+        changed = true;
+        ControlesOrbitales.target.y += CustomTarget.stepY;
+        if (ControlesOrbitales.target.y > CustomTarget.y) {
+            ControlesOrbitales.target.y = CustomTarget.y;
+        }
+    } else if (CustomTarget.y < ControlesOrbitales.target.y) {
+        changed = true;
+        ControlesOrbitales.target.y -= CustomTarget.stepY;
+        if (ControlesOrbitales.target.y < CustomTarget.y) {
+            ControlesOrbitales.target.y = CustomTarget.y;
+        }
+    }
+//    if(CustomTarget.y != ControlesOrbitales.target.y){
+//        changed = true;
+//        ControlesOrbitales.target.y = CustomTarget.y;
+//    }
+
+    if (CustomTarget.z > ControlesOrbitales.target.z) {
+        changed = true;
+        ControlesOrbitales.target.z += CustomTarget.stepZ;
+        if (ControlesOrbitales.target.z > CustomTarget.z) {
+            ControlesOrbitales.target.z = CustomTarget.z;
+        }
+    } else if (CustomTarget.z < ControlesOrbitales.target.z) {
+        changed = true;
+        ControlesOrbitales.target.z -= CustomTarget.stepZ;
+        if (ControlesOrbitales.target.z < CustomTarget.z) {
+            ControlesOrbitales.target.z = CustomTarget.z;
+        }
+    }
+//    if(CustomTarget.z != ControlesOrbitales.target.z){
+//        changed = true;
+//        ControlesOrbitales.target.z = CustomTarget.z;
+//    }
+
+    if (changed == true) {
+        //console.log(camera);
+        //console.log(ControlesOrbitales);
+    }
 }
