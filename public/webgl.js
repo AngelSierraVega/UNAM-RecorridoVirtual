@@ -43,6 +43,8 @@ import { OrbitControls } from '/UNAM/RecorridoVirtual/jsm/controls/OrbitControls
 import { MTLLoader } from "/UNAM/RecorridoVirtual/jsm/loaders/MTLLoader.js";
 import { OBJLoader2 } from "/UNAM/RecorridoVirtual/jsm/loaders/OBJLoader2.js";
 import { MtlObjBridge } from "/UNAM/RecorridoVirtual/jsm/loaders/obj2/bridge/MtlObjBridge.js";
+import { Sky } from '/UNAM/RecorridoVirtual/jsm/objects/Sky.js';
+
 
 import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
 
@@ -50,8 +52,7 @@ import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
  * Code for HDRI
  * @edit 20-07-26
  */
-//import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
-import { RGBELoader } from '/UNAM/RecorridoVirtual/jsm/loaders/RGBELoader.js';
+//import { RGBELoader } from '/UNAM/RecorridoVirtual/jsm/loaders/RGBELoader.js';
 
 var camera, ControlesOrbitales, scene, renderer;
 
@@ -115,13 +116,27 @@ var puntosInteresEC = {
     , "SalaNeza": {x: 22, y: 18, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
 };
 
+/**
+ * 
+ * @type type
+ * @since 20-08-19
+ */
 var paramsLuzPrimariaFocal = {
-    'intensity': 1
+    'intensity': 0.2
     , 'ShadowBias': -0.000015
     , 'ShadowMapSize': 512
 };
 
-
+/**
+ * 
+ * @type type
+ * @since 20-08-20
+ */
+var paramsEscena = {
+    'intensity': 0.2
+    , 'ShadowBias': -0.000015
+    , 'ShadowMapSize': 512
+};
 
 /**
  * 
@@ -133,6 +148,8 @@ var panel;
 var LuzPrimariaFocal;
 var LuzAmbiental;
 var Fondo;
+
+var sky, sunSphere;
 
 init();
 animate();
@@ -164,6 +181,7 @@ function init() {
      */
     //initFondoCieloSimulado();
     //initFondoHdri();
+    initSky();
     /**
      * Iluminación
      */
@@ -209,9 +227,6 @@ function createPanel() {
         'TargetY': 0,
         'TargetZ': 0
         , 'FOV': 45
-                //LuzPrimariaFocal
-                //, 'ShadowBias': -0.000015
-                //, 'ShadowMapSize': 512
     };
     //var panel = new GUI();
     panel = new GUI({width: 310});
@@ -783,8 +798,8 @@ function render() {
 function initEscena() {
     scene = new THREE.Scene();
     //scene.background = new THREE.Color( 0xcccccc );
-    renderer = new THREE.WebGLRenderer({antialias: true});
-    //renderer = new THREE.WebGLRenderer();
+    //renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -992,4 +1007,74 @@ function animCamera() {
         //console.log(camera);
         //console.log(ControlesOrbitales);
     }
+}
+
+function initSky() {
+
+    // Add Sky
+    sky = new Sky();
+    sky.scale.setScalar(450000);
+    scene.add(sky);
+
+    // Add Sun Helper
+    sunSphere = new THREE.Mesh(
+            new THREE.SphereBufferGeometry(20000, 16, 8),
+            new THREE.MeshBasicMaterial({color: 0xffffff})
+            );
+    sunSphere.position.y = -700000;
+    sunSphere.visible = false;
+    scene.add(sunSphere);
+
+    /// GUI
+
+    var effectController = {
+        turbidity: 10,
+        rayleigh: 2,
+        mieCoefficient: 0.005,
+        mieDirectionalG: 0.8,
+        luminance: 1,
+        inclination: 0.49, // elevation / inclination
+        azimuth: 0.25, // Facing front,
+        sun: !true
+    };
+
+    var distance = 400000;
+
+    function guiChanged() {
+
+        var uniforms = sky.material.uniforms;
+        uniforms[ "turbidity" ].value = effectController.turbidity;
+        uniforms[ "rayleigh" ].value = effectController.rayleigh;
+        uniforms[ "mieCoefficient" ].value = effectController.mieCoefficient;
+        uniforms[ "mieDirectionalG" ].value = effectController.mieDirectionalG;
+        uniforms[ "luminance" ].value = effectController.luminance;
+
+        var theta = Math.PI * (effectController.inclination - 0.5);
+        var phi = 2 * Math.PI * (effectController.azimuth - 0.5);
+
+        sunSphere.position.x = distance * Math.cos(phi);
+        sunSphere.position.y = distance * Math.sin(phi) * Math.sin(theta);
+        sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta);
+
+        sunSphere.visible = effectController.sun;
+
+        uniforms[ "sunPosition" ].value.copy(sunSphere.position);
+
+        renderer.render(scene, camera);
+
+    }
+
+    var gui = new GUI();
+
+    gui.add(effectController, "turbidity", 1.0, 20.0, 0.1).onChange(guiChanged);
+    gui.add(effectController, "rayleigh", 0.0, 4, 0.001).onChange(guiChanged);
+    gui.add(effectController, "mieCoefficient", 0.0, 0.1, 0.001).onChange(guiChanged);
+    gui.add(effectController, "mieDirectionalG", 0.0, 1, 0.001).onChange(guiChanged);
+    gui.add(effectController, "luminance", 0.0, 2).onChange(guiChanged);
+    gui.add(effectController, "inclination", 0, 1, 0.0001).onChange(guiChanged);
+    gui.add(effectController, "azimuth", 0, 1, 0.0001).onChange(guiChanged);
+    gui.add(effectController, "sun").onChange(guiChanged);
+
+    guiChanged();
+
 }
