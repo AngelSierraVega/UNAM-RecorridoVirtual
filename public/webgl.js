@@ -18,7 +18,7 @@ const modelName = 'CCU3d';
 
 const CONFIG_SOMBRAS = true;
 const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
-const CONFIG_HELPERS = true;
+const CONFIG_HELPERS = false;
 const CONFIG_DEBUG = false;
 const CONFIG_DOBLE_CARA = true;
 
@@ -115,16 +115,27 @@ var puntosInteresEC = {
     , "SalaNeza": {x: 22, y: 18, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
 };
 
+var paramsLuzPrimariaFocal = {
+    'intensity': 1
+    , 'ShadowBias': -0.000015
+    , 'ShadowMapSize': 512
+};
 
 
 
+/**
+ * 
+ * @type type
+ * @since 20-08-18
+ */
 var panel;
 
+var LuzPrimariaFocal;
+var LuzAmbiental;
+var Fondo;
+
 init();
-//render(); // remove when using next line for animation loop (requestAnimationFrame)
 animate();
-
-
 
 /**
  * @since 20-05-20
@@ -134,9 +145,10 @@ function init() {
     /**
      * Camara
      */
-    initCamara();
-    createPanel();
-    //initCamaraDesarrollo();
+    //initCamara();
+    initCamaraDesarrollo();
+
+
     /**
      * Mundo
      */
@@ -155,16 +167,18 @@ function init() {
     /**
      * Iluminación
      */
-    initIluminacionSimple();
+    //initIluminacionSimple();
     //initLuzDireccionalPrimaria();
     //initLuzPuntualPrimaria();
-    //initLuzFocalPrimaria();
+    luzPrimariaFocal();
 
-    console.log(panel);
-    var folder = panel.__folders[Object.keys(panel.__folders)[1]];
-    console.log(folder);
-    var controlador = folder.__controllers[Object.keys(folder.__controllers)[0]]
-    console.log(controlador);
+    createPanel();
+
+//    console.log(panel);
+//    var folder = panel.__folders[Object.keys(panel.__folders)[1]];
+//    console.log(folder);
+//    var controlador = folder.__controllers[Object.keys(folder.__controllers)[0]]
+//    console.log(controlador);
 
     /**
      * Eventos
@@ -183,18 +197,28 @@ function init() {
     window.addEventListener("touchend", onDocumentMouseDown, false);
 }
 
+
+/**
+ * 
+ * @returns {undefined}
+ * @since 19-08-20
+ */
 function createPanel() {
     var paramsGui = {
         'TargetX': 0,
         'TargetY': 0,
         'TargetZ': 0
         , 'FOV': 45
+                //LuzPrimariaFocal
+                //, 'ShadowBias': -0.000015
+                //, 'ShadowMapSize': 512
     };
     //var panel = new GUI();
     panel = new GUI({width: 310});
 
     var folder1 = panel.addFolder('Visibilidad(DEMO)');
     var folder2 = panel.addFolder('Cámara');
+    var folder3 = panel.addFolder('Luz Primaria Focal')
 
     folder2.add(paramsGui, 'TargetX').listen();
     folder2.add(paramsGui, 'TargetY').listen();
@@ -204,6 +228,25 @@ function createPanel() {
         camera.fov = value;
         camera.updateProjectionMatrix();
     });
+    folder3.add(paramsLuzPrimariaFocal, 'intensity', 0, 1, 0.1).listen().onChange(function (value) {
+        LuzPrimariaFocal.intensity = value;
+        //camera.updateProjectionMatrix();
+    });
+
+    //0.0001
+    //0.000001
+    folder3.add(paramsLuzPrimariaFocal, 'ShadowBias', -0.00003, 0.00003, 0.000001).listen().onChange(function (value) {
+        LuzPrimariaFocal.shadow.bias = value;
+        //camera.updateProjectionMatrix();
+    });
+    folder3.add(paramsLuzPrimariaFocal, 'ShadowMapSize', 512, 1024 * 4, 512).listen().onChange(function (value) {
+        LuzPrimariaFocal.shadow.mapSize.width = value;
+        LuzPrimariaFocal.shadow.mapSize.height = value;
+    });
+
+    //LuzPrimariaFocal.shadow.camera.near = 30; 0.5
+    //LuzPrimariaFocal.shadow.camera.far = 300; 500
+
 //    folder2.add(paramsGui, 'FOV').onChange(function (value) {
 //        console.log(value);
 //        camera.fov = value;
@@ -240,7 +283,7 @@ function initCamaraToma01() {
  * @edit 20-07-27
  * @edit 20-08-09
  */
-function initCamara() {
+function initCamara2() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
     //camera.position.set(10, 0, 5);
     if (CONFIG_HELPERS) {
@@ -423,26 +466,30 @@ function initModeloFinal() {
 /**
  * @since 20-07-26
  * @edit 20-07-26
+ * @edit 20-08-19
  */
-function initLuzFocalPrimaria() {
-    var light = new THREE.SpotLight(COLOR_LUZCIELO, 0.7);
-    light.position.set(-10, 120, -10);
-    scene.add(light);
-    light.angle = Math.PI / 2.6;
-    light.penumbra = 1;
-    light.power = Math.PI / 1.3;//Default is 4Math.PI. 
+function luzPrimariaFocal() {
+    LuzPrimariaFocal = new THREE.SpotLight(COLOR_LUZCIELO, paramsLuzPrimariaFocal.intensity);
+    LuzPrimariaFocal.position.set(-10, 120, -10);
+    scene.add(LuzPrimariaFocal);
+    //LuzPrimariaFocal.angle = Math.PI / 2.6;
+    //LuzPrimariaFocal.penumbra = 1;
+    //LuzPrimariaFocal.power = Math.PI / 1.3;//Default is 4Math.PI. 
     if (CONFIG_HELPERS) {
-        var LightHeper = new THREE.SpotLightHelper(light, 3);
+        var LightHeper = new THREE.SpotLightHelper(LuzPrimariaFocal, 3);
         scene.add(LightHeper);
     }
     if (CONFIG_SOMBRAS) {
-        light.castShadow = true;
-        light.shadow.mapSize.width = 512 * 2 * 2;
-        light.shadow.mapSize.height = 512 * 2 * 2;
-        light.shadow.camera.near = 30;
-        light.shadow.camera.far = 300;
+        LuzPrimariaFocal.castShadow = true;
+
+        //LuzPrimariaFocal.shadow.mapSize.width = 512 * 2 * 2;
+        //LuzPrimariaFocal.shadow.mapSize.height = 512 * 2 * 2;
+        //LuzPrimariaFocal.shadow.camera.near = 30;
+        //LuzPrimariaFocal.shadow.camera.far = 300;
         //light.shadow.camera.fov = 10;
-        light.shadow.bias = 0.00001;//The default is 0
+        LuzPrimariaFocal.shadow.mapSize.width = paramsLuzPrimariaFocal.ShadowMapSize;
+        LuzPrimariaFocal.shadow.mapSize.height = paramsLuzPrimariaFocal.ShadowMapSize;
+        LuzPrimariaFocal.shadow.bias = paramsLuzPrimariaFocal.ShadowBias;//The default is 0
     }
 }
 
@@ -499,8 +546,8 @@ function initLuzDireccionalPrimaria() {
         light.castShadow = true;
         light.shadow.mapSize.width = 512;  // default
         light.shadow.mapSize.height = 512; // default
-        light.shadow.camera.near = 10;    // default
-        light.shadow.camera.far = 200;     // default
+//        light.shadow.camera.near = 10;    // default
+//        light.shadow.camera.far = 200;     // default
     }
 }
 
@@ -741,6 +788,9 @@ function initEscena() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    //renderer.toneMapping = THREE.LinearToneMapping;
+    // ReinhardToneMapping
+    //CineonToneMapping
     /**
      * @edit 20-07-25
      * Sombras
@@ -751,6 +801,7 @@ function initEscena() {
             renderer.shadowMap.type = THREE.PCFShadowMap;
         } else {
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            //renderer.shadowMap.type = THREE.PCFShadowMap;
         }
     }
 
@@ -865,59 +916,73 @@ function moveCameraTo(object) {
 /**
  * 
  * @returns {undefined}
- * @since 20-08-19
+ * @since 20-08-18
+ * @edit 20-08-19
  */
 function animCamera() {
-
     var changed = false;
-
-    if (CustomTarget.x > ControlesOrbitales.target.x) {
-        changed = true;
-        ControlesOrbitales.target.x += CustomTarget.stepX;
-        if (ControlesOrbitales.target.x > CustomTarget.x) {
-            ControlesOrbitales.target.x = CustomTarget.x;
-        }
-    } else if (CustomTarget.x < ControlesOrbitales.target.x) {
-        changed = true;
-        ControlesOrbitales.target.x -= CustomTarget.stepX;
-        if (ControlesOrbitales.target.x < CustomTarget.x) {
-            ControlesOrbitales.target.x = CustomTarget.x;
+    if (CustomTarget.x != null) {
+        if (CustomTarget.x > ControlesOrbitales.target.x) {
+            changed = true;
+            ControlesOrbitales.target.x += CustomTarget.stepX;
+            if (ControlesOrbitales.target.x > CustomTarget.x) {
+                ControlesOrbitales.target.x = CustomTarget.x;
+                CustomTarget.x = null;
+            }
+        } else if (CustomTarget.x < ControlesOrbitales.target.x) {
+            changed = true;
+            ControlesOrbitales.target.x -= CustomTarget.stepX;
+            if (ControlesOrbitales.target.x < CustomTarget.x) {
+                ControlesOrbitales.target.x = CustomTarget.x;
+                CustomTarget.x = null;
+            }
         }
     }
+
 //    if(CustomTarget.x != ControlesOrbitales.target.x){
 //        ControlesOrbitales.target.x = CustomTarget.x;
 //    }
-    if (CustomTarget.y > ControlesOrbitales.target.y) {
-        changed = true;
-        ControlesOrbitales.target.y += CustomTarget.stepY;
-        if (ControlesOrbitales.target.y > CustomTarget.y) {
-            ControlesOrbitales.target.y = CustomTarget.y;
-        }
-    } else if (CustomTarget.y < ControlesOrbitales.target.y) {
-        changed = true;
-        ControlesOrbitales.target.y -= CustomTarget.stepY;
-        if (ControlesOrbitales.target.y < CustomTarget.y) {
-            ControlesOrbitales.target.y = CustomTarget.y;
+    if (CustomTarget.y != null) {
+        if (CustomTarget.y > ControlesOrbitales.target.y) {
+            changed = true;
+            ControlesOrbitales.target.y += CustomTarget.stepY;
+            if (ControlesOrbitales.target.y > CustomTarget.y) {
+                ControlesOrbitales.target.y = CustomTarget.y;
+                CustomTarget.y = null;
+            }
+        } else if (CustomTarget.y < ControlesOrbitales.target.y) {
+            changed = true;
+            ControlesOrbitales.target.y -= CustomTarget.stepY;
+            if (ControlesOrbitales.target.y < CustomTarget.y) {
+                ControlesOrbitales.target.y = CustomTarget.y;
+                CustomTarget.y = null;
+            }
         }
     }
+
 //    if(CustomTarget.y != ControlesOrbitales.target.y){
 //        changed = true;
 //        ControlesOrbitales.target.y = CustomTarget.y;
 //    }
 
-    if (CustomTarget.z > ControlesOrbitales.target.z) {
-        changed = true;
-        ControlesOrbitales.target.z += CustomTarget.stepZ;
-        if (ControlesOrbitales.target.z > CustomTarget.z) {
-            ControlesOrbitales.target.z = CustomTarget.z;
-        }
-    } else if (CustomTarget.z < ControlesOrbitales.target.z) {
-        changed = true;
-        ControlesOrbitales.target.z -= CustomTarget.stepZ;
-        if (ControlesOrbitales.target.z < CustomTarget.z) {
-            ControlesOrbitales.target.z = CustomTarget.z;
+    if (CustomTarget.z != null) {
+        if (CustomTarget.z > ControlesOrbitales.target.z) {
+            changed = true;
+            ControlesOrbitales.target.z += CustomTarget.stepZ;
+            if (ControlesOrbitales.target.z > CustomTarget.z) {
+                ControlesOrbitales.target.z = CustomTarget.z;
+                CustomTarget.z = null;
+            }
+        } else if (CustomTarget.z < ControlesOrbitales.target.z) {
+            changed = true;
+            ControlesOrbitales.target.z -= CustomTarget.stepZ;
+            if (ControlesOrbitales.target.z < CustomTarget.z) {
+                ControlesOrbitales.target.z = CustomTarget.z;
+                CustomTarget.z = null;
+            }
         }
     }
+
 //    if(CustomTarget.z != ControlesOrbitales.target.z){
 //        changed = true;
 //        ControlesOrbitales.target.z = CustomTarget.z;
