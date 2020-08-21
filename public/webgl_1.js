@@ -177,7 +177,7 @@ function init() {
      * Camara
      */
     initCamara();
-    //initCamaraDesarrollo();
+//    initCamaraDesarrollo();
 
 
     /**
@@ -318,8 +318,8 @@ function initCamaraToma01() {
  * @edit 20-08-09
  */
 function initCamara() {
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 5, 600);
-    //camera.position.set(10, 0, 5);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(10, 0, 5);
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
