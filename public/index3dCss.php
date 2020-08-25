@@ -74,7 +74,7 @@ $relRueyac['SalaNeza'] = 0;
                 height: 100%;
             }
         </style>
-        <title>Demo Recorrido Virtual</title>
+        <title>Demo loader3dCss</title>
     </head>
     <body>
 
@@ -132,7 +132,7 @@ $relRueyac['SalaNeza'] = 0;
 
         <!--        <h1>Hello, world!</h1>-->
 
-        <iframe id="framePrincipal" src="loader_0.php" allowfullscreen allowvr onmousewheel=""></iframe>
+        <iframe id="framePrincipal" src="loader3dCss.php" allowfullscreen allowvr onmousewheel=""></iframe>
 
         <div id="SingleModal2" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
@@ -143,8 +143,7 @@ $relRueyac['SalaNeza'] = 0;
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    
-                    <div class="modal-body row">
+                    <div class="modal-body">
                         <iframe id="frameSecundario" src="loader360.php?IDx_EC=none" allowfullscreen allowvr onmousewheel=""></iframe>
                     </div>
                     <div class="modal-footer">
@@ -173,8 +172,7 @@ $relRueyac['SalaNeza'] = 0;
                                         var modal = $("#SingleModal2");
                                         modal.find('.modal-title').text(name);
                                         $("#SingleModal2").modal('toggle');
-//                                        var new_url = "loader360.php?IDx_EC=" + name;
-                                        var new_url = "loaderEC.php?IDx_EC=" + name;
+                                        var new_url = "loader360.php?IDx_EC=" + name;
                                         document.getElementById('frameSecundario').contentWindow.location.replace(new_url);
                                         break;
                                 }

@@ -177,7 +177,7 @@ function init() {
      * Camara
      */
     initCamara();
-//    initCamaraDesarrollo();
+    //initCamaraDesarrollo();
 
 
     /**
@@ -225,8 +225,22 @@ function init() {
 
     //gui.
 
-    window.addEventListener('mousedown', onDocumentMouseDown, false);
-    window.addEventListener("touchend", onDocumentMouseDown, false);
+    window.addEventListener('click', onDocumentMouseDown, false);
+    //window.addEventListener("touch", onDocumentMouseDown, false);
+
+//    $(document).on('touchstart', function () {
+//        documentClick = true;
+//    });
+//    $(document).on('touchmove', function () {
+//        documentClick = false;
+//    });
+//    $(document).on('click touchend', function (event) {
+//        if (event.type == "click")
+//            documentClick = true;
+//        if (documentClick) {
+//            onDocumentMouseDown(event);
+//        }
+//    });
 }
 
 
@@ -282,7 +296,7 @@ function createPanel() {
 //        camera.fov = value;
 //    });
 
-    folder2.open();
+    //folder2.open();
 }
 
 /**
@@ -290,9 +304,9 @@ function createPanel() {
  */
 function initCamaraDesarrollo() {
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight);
-    camera.position.x = -120-10-20;
-    camera.position.y = 35+10+20+20;
-    camera.position.z = -10-10;
+    camera.position.x = -120 - 10 - 20;
+    camera.position.y = 35 + 10 + 20 + 20;
+    camera.position.z = -10 - 10;
     //x: , y: 18, z: -50
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
@@ -318,8 +332,8 @@ function initCamaraToma01() {
  * @edit 20-08-09
  */
 function initCamara() {
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.set(10, 0, 5);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 600);
+    camera.position.set(-30, 10, -30);
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
@@ -343,12 +357,15 @@ function setControlesOrbitales() {
 
     ControlesOrbitales.minDistance = 5;
     ControlesOrbitales.maxDistance = 15;
+    ControlesOrbitales.target.x = -43;
+     ControlesOrbitales.target.y = 10;
+     ControlesOrbitales.target.z = -43;
     //ControlesOrbitales.
     CustomTarget.x = ControlesOrbitales.target.x;
     CustomTarget.y = ControlesOrbitales.target.y;
     CustomTarget.z = ControlesOrbitales.target.z;
 
-    //ControlesOrbitales.maxPolarAngle = Math.PI / 2;
+    ControlesOrbitales.maxPolarAngle = Math.PI / 1.8;
 
     ControlesOrbitales.enableZoom = true;
 }
@@ -593,7 +610,7 @@ function initLuzDireccionalPrimaria() {
 var geometriaPuntoInteres;
 
 /**
- * @since 20-08-18
+ * @since 20-08-21
  * @param Object puntoInteres
  * @returns {undefined}
  */
@@ -617,12 +634,13 @@ function addPuntoInteres(puntoInteres, secundario) {
     circle.name = puntoInteres.xIdEC;
     scene.add(circle);
     meshPlacaEspacioCultural.push(circle);
-    
+
     var circle2 = new THREE.Mesh(geometriaPuntoInteresSecundario, material);
     circle2.position.set(secundario.x, secundario.y, secundario.z);
     circle2.rotateX(Math.PI / 2);
     circle2.receiveShadow = false;
-    circle2.name = puntoInteres.xIdEC +"_SEC";
+    //circle2.name = puntoInteres.xIdEC +"_SEC";
+    circle2.name = puntoInteres.xIdEC;
     scene.add(circle2);
     meshPlacaEspacioCultural.push(circle2);
 }
@@ -638,9 +656,9 @@ function initPlacasEspaciosCulturales() {
     //puntosInteresECsec
     geometriaPuntoInteres = new THREE.CircleBufferGeometry(1, 32);
     geometriaPuntoInteresSecundario = new THREE.CircleBufferGeometry(4, 32);
-    addPuntoInteres(puntosInteresEC.MUAC,puntosInteresECsec.MUAC);
+    addPuntoInteres(puntosInteresEC.MUAC, puntosInteresECsec.MUAC);
     //addPuntoInteres(puntosInteresEC.ExplanadaEspiga,puntosInteresECsec.ExplanadaEspiga);
-    addPuntoInteres(puntosInteresEC.Cines,puntosInteresECsec.Cines);
+    addPuntoInteres(puntosInteresEC.Cines, puntosInteresECsec.Cines);
     //addPuntoInteres(puntosInteresEC.SalaCarlosChaves,puntosInteresECsec.SalaCarlosChaves);
     //addPuntoInteres(puntosInteresEC.SalaMiguelCovarrubias,puntosInteresECsec.SalaMiguelCovarrubias);
     //addPuntoInteres(puntosInteresEC.SalonDanza,puntosInteresECsec.SalonDanza);
@@ -907,8 +925,12 @@ function onDocumentMouseDown(event) {
     if (intersects.length > 0) {
         if (intersects[0].object.name) {
             this.name = intersects[0].object.name;
-            //window.parent.postMessage(this.name, "*");
-
+            window.parent.postMessage(this.name, "*");
+//            switch (this.name) {
+//                case "MUAC":
+//                    puntoInteres = 
+//                    break;
+//            }
             moveCameraTo(intersects[0].object);
 
 
@@ -1061,8 +1083,8 @@ function initSky() {
         mieCoefficient: 0.005,
         mieDirectionalG: 0.8,
         luminance: 1,
-        inclination: 0.49, // elevation / inclination
-        azimuth: 0.25, // Facing front,
+        inclination: 0.12, // elevation / inclination
+        azimuth: 0.25, // Facing front (0.25)
         sun: !true
     };
 
@@ -1093,15 +1115,15 @@ function initSky() {
     }
 
     var gui = new GUI();
-
-    gui.add(effectController, "turbidity", 1.0, 20.0, 0.1).onChange(guiChanged);
-    gui.add(effectController, "rayleigh", 0.0, 4, 0.001).onChange(guiChanged);
-    gui.add(effectController, "mieCoefficient", 0.0, 0.1, 0.001).onChange(guiChanged);
-    gui.add(effectController, "mieDirectionalG", 0.0, 1, 0.001).onChange(guiChanged);
-    gui.add(effectController, "luminance", 0.0, 2).onChange(guiChanged);
-    gui.add(effectController, "inclination", 0, 1, 0.0001).onChange(guiChanged);
-    gui.add(effectController, "azimuth", 0, 1, 0.0001).onChange(guiChanged);
-    gui.add(effectController, "sun").onChange(guiChanged);
+    var folder = gui.addFolder('Cielo (DEMO)');
+    folder.add(effectController, "turbidity", 1.0, 20.0, 0.1).onChange(guiChanged);
+    folder.add(effectController, "rayleigh", 0.0, 4, 0.001).onChange(guiChanged);
+    folder.add(effectController, "mieCoefficient", 0.0, 0.1, 0.001).onChange(guiChanged);
+    folder.add(effectController, "mieDirectionalG", 0.0, 1, 0.001).onChange(guiChanged);
+    folder.add(effectController, "luminance", 0.0, 2).onChange(guiChanged);
+    folder.add(effectController, "inclination", 0, 1, 0.0001).onChange(guiChanged);
+    folder.add(effectController, "azimuth", 0, 1, 0.0001).onChange(guiChanged);
+    folder.add(effectController, "sun").onChange(guiChanged);
 
     guiChanged();
 
@@ -1112,11 +1134,12 @@ function initSky() {
  * @returns {undefined}
  * @since 20-08-20
  */
-function luzAmbiental(){
-    var light = new THREE.AmbientLight(COLOR_LUZFONDO,paramsLuzAmbiental.intensity);
+function luzAmbiental() {
+    var light = new THREE.AmbientLight(COLOR_LUZFONDO, paramsLuzAmbiental.intensity);
     scene.add(light);
     var gui = new GUI();
-    gui.add(paramsLuzAmbiental, "intensity", 0, 1, 0.1).onChange(function (value) {
+    var folder = gui.addFolder('Luz ambiental (DEMO)');
+    folder.add(paramsLuzAmbiental, "intensity", 0, 1, 0.1).onChange(function (value) {
         light.intensity = value;
     });
 }

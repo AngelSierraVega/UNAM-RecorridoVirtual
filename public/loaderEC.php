@@ -9,7 +9,8 @@ $conn = mysqli_connect('localhost', 'root', '') or die("Error, conexion");
 $bd = mysqli_select_db($conn, 'grupoind_data') or die("Error, Base de datos");
 mysqli_set_charset($conn, 'utf8');
 
-$xIdEC = "MUAC";
+
+$xIdEC = isset($_GET["IDx_EC"]) ? $_GET["IDx_EC"] : "MUAC";
 
 $descripcionesEC = [];
 $descripcionesEC['MUAC'] = "El MUAC es...";
@@ -65,27 +66,27 @@ $rutaRUEyACoriginal = 'http://srvr.d/rueyac/';
         <div class="card">
 
             <div class="card-header">
-                
                 <h5 class="card-title">Detalle de Espacio Cultural</h5>
                 <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" 
-                       id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">
-                        Información general</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" 
-                       id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">
-                        Recorrido 360</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" 
-                       id="contact-tab" data-toggle="tab" href="#EC_Tecnico" role="tab" aria-controls="contact" aria-selected="false">
-                        Información técnica</a>
-                </li>
-            </ul>
+                    <li class="nav-item">
+                        <a class="nav-link active" 
+                           id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">
+                            Información general</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" 
+                           id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">
+                            Recorrido 360</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" 
+                           id="contact-tab" data-toggle="tab" href="#EC_Tecnico" role="tab" aria-controls="contact" aria-selected="false">
+                            Información técnica</a>
+                    </li>
+                </ul>
             </div>
-            
+
+
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <div class="card-body">
@@ -93,18 +94,20 @@ $rutaRUEyACoriginal = 'http://srvr.d/rueyac/';
                              class="card-img-top" 
                              alt="<?= $row_actividades['Nombre']; ?>">
                         <h5 class="card-title"><?= $row['sic_espacio_cultural|Nombre']; ?></h5>
-                        
+
                         <p class="card-text"><?= $descripcionEC; ?></p>
-                        
+
                         <ul class="list-group list-group-flush">
                             <?php
-                            foreach ($linksEC[$xIdEC] as $url => $content){
+                            foreach ($linksEC[$xIdEC] as $url => $content) {
+
                                 ?>
                                 <li class="list-group-item list-group-item-action">
                                     <a href="<?= $url; ?>" class="card-link" target="_blank"><?= $content; ?></a>
                                 </li>
                                 <?php
                             }
+
                             ?>
                         </ul>
 

@@ -16,10 +16,10 @@
  */
 const modelName = 'CCU3d';
 
-const CONFIG_SOMBRAS = true;
+const CONFIG_SOMBRAS = false;
 const CONFIG_SOMBRAS_CALIDAD_BAJA = false;
 const CONFIG_HELPERS = false;
-const CONFIG_DEBUG = false;
+const CONFIG_DEBUG = true;
 const CONFIG_DOBLE_CARA = true;
 
 const COLOR_TIERRA = "darkolivegreen";
@@ -59,8 +59,6 @@ import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
 var camera, ControlesOrbitales, scene, renderer;
 
 
-
-
 /**
  * Code for hemispheric light
  * @edit 20-07-15
@@ -95,32 +93,21 @@ var CustomTarget = {
 /**
  * 
  * @type type
- * @since 20-08-26
- */
-var coordCentro = {
-    "x": 5
-    , "y": -50
-    , "z": 15
-};
-
-/**
- * 
- * @type type
  * @since 20-08-18
  */
-var puntosInteresEC = {
+var puntosInteresECsec = {
     "MUAC": {x: -80, y: 18, z: -90, "icono": "IC_MUAC.png", "xIdEC": "MUAC2"}
-    , "ExplanadaEspiga": {x: -70, y: 12, z: -50, "icono": "IC_ExplanadaEspiga.png", "xIdEC": "ExplanadaEspiga"}
+    , "ExplanadaEspiga": {x: -70, y: 18, z: -50, "icono": "IC_ExplanadaEspiga.png", "xIdEC": "ExplanadaEspiga"}
     , "Cines": {x: -65, y: 18, z: 3, "icono": "IC_Cines.png", "xIdEC": "Cines"}
     , "SalaCarlosChaves": {x: -20, y: 18, z: 28, "icono": "IC_SalaCarlosChaves.png", "xIdEC": "SalaCarlosChaves"}
-    , "SalaMiguelCovarrubias": {x: -43, y: 21, z: 63, "icono": "IC_SalaMiguelCovarrubias.png", "xIdEC": "SalaMiguelCovarrubias"}
+    , "SalaMiguelCovarrubias": {x: -43, y: 18, z: 63, "icono": "IC_SalaMiguelCovarrubias.png", "xIdEC": "SalaMiguelCovarrubias"}
     , "SalonDanza": {x: -37, y: 18, z: 89, "icono": "IC_SalonDanza.png", "xIdEC": "SalonDanza"}
     , "TeatroJuanRuiz": {x: 20, y: 18, z: -55, "icono": "IC_TeatroJuanRuiz.png", "xIdEC": "TeatroJuanRuiz"}
-    , "ForoSorJuana": {x: 23, y: 15, z: 0, "icono": "IC_ForoSorJuana.png", "xIdEC": "ForoSorJuana"}
-    , "SalaNeza": {x: 22, y: 21, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
+    , "ForoSorJuana": {x: 23, y: 18, z: 0, "icono": "IC_ForoSorJuana.png", "xIdEC": "ForoSorJuana"}
+    , "SalaNeza": {x: 22, y: 18, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
 };
 
-var puntosInteresECsec = {
+var puntosInteresEC = {
     "MUAC": {x: -45, y: 7, z: -65, "icono": "IC_MUAC.png", "xIdEC": "MUAC"}
     , "ExplanadaEspiga": {x: -70, y: 18, z: -50, "icono": "IC_ExplanadaEspiga.png", "xIdEC": "ExplanadaEspiga"}
     , "Cines": {x: -54, y: 3, z: 16, "icono": "IC_Cines.png", "xIdEC": "Cines"}
@@ -191,16 +178,17 @@ function init() {
     /**
      * Camara
      */
-    camaraFinal();
-    //camaraDesarrollo();
-    
+    //initCamara();
+    initCamaraDesarrollo();
+
+
     /**
      * Mundo
      */
-    objPisoCircular();
+    initPisoCircular();
     initPlacasEspaciosCulturales();
     if (CONFIG_HELPERS) {
-        objMalla();
+        initMalla();
     }
     //initDummies();
     initModeloFinal();
@@ -316,8 +304,8 @@ function createPanel() {
 /**
  * @since 20-06-20
  */
-function camaraFinal() {
-    camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight);
+function initCamaraDesarrollo() {
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight);
     camera.position.x = -120 - 10 - 20;
     camera.position.y = 35 + 10 + 20 + 20;
     camera.position.z = -10 - 10;
@@ -326,55 +314,13 @@ function camaraFinal() {
         var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
     }
-    camaraControlesOrbitales();
-}
-
-/**
- * @since 20-07-12
- */
-function camaraControlesOrbitales() {
-    ControlesOrbitales = new OrbitControls(camera, renderer.domElement);
-
-    ControlesOrbitales.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
-
-    ControlesOrbitales.enableDamping = false; // an animation loop is required when either damping or auto-rotation are enabled
-    ControlesOrbitales.dampingFactor = 0.05;
-
-    ControlesOrbitales.screenSpacePanning = true;
-
-    ControlesOrbitales.minDistance = 10;
-    ControlesOrbitales.maxDistance = 200;
-
-    ControlesOrbitales.maxPolarAngle = Math.PI/1.9;
-    
-    
-    ControlesOrbitales.target.x = -41;
-    ControlesOrbitales.target.y = 15;
-    ControlesOrbitales.target.z = -36;
+    setControlesOrbitalesDesarrollo();
 }
 
 /**
  * @since 20-06-20
  */
-function camaraDesarrollo() {
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight);
-//    camera.position.x = -120 - 10 - 20;
-//    camera.position.y = 35 + 10 + 20 + 20;
-//    camera.position.z = -10 - 10;
-    camera.position.x = coordCentro.x;
-    camera.position.y = coordCentro.y;
-    camera.position.z = coordCentro.z+200;
-    if (CONFIG_HELPERS) {
-        var cameraHelper = new THREE.CameraHelper(camera);
-        scene.add(cameraHelper);
-    }
-    camaraControlesOrbitalesDesarrollo();
-}
-
-/**
- * @since 20-06-20
- */
-function initCamaraToma01DPR() {
+function initCamaraToma01() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 400);
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
@@ -387,7 +333,7 @@ function initCamaraToma01DPR() {
  * @edit 20-07-27
  * @edit 20-08-09
  */
-function initCamaraDPR() {
+function initCamara() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 600);
     camera.position.set(-30, 10, -30);
     if (CONFIG_HELPERS) {
@@ -401,7 +347,7 @@ function initCamaraDPR() {
  * @since 20-08-09
  * @returns {undefined}
  */
-function setControlesOrbitalesDPR() {
+function setControlesOrbitales() {
     ControlesOrbitales = new OrbitControls(camera, renderer.domElement);
     ControlesOrbitales.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
 
@@ -429,15 +375,11 @@ function setControlesOrbitalesDPR() {
 /**
  * @since 20-07-12
  */
-function camaraControlesOrbitalesDesarrollo() {
+function setControlesOrbitalesDesarrollo() {
     ControlesOrbitales = new OrbitControls(camera, renderer.domElement);
 
     ControlesOrbitales.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
 
-    ControlesOrbitales.target.x = coordCentro.x;
-    ControlesOrbitales.target.y = coordCentro.y;
-    ControlesOrbitales.target.z = coordCentro.z;
-    
     ControlesOrbitales.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
     ControlesOrbitales.dampingFactor = 0.05;
 
@@ -568,9 +510,31 @@ function initModeloFinal() {
 //                                        });
 
     };
+    var material = new THREE.MeshPhongMaterial({
+            color: 0x156289,
+            emissive: 0x000000,
+            specular: 0x111111,
+            side: THREE.DoubleSide,
+            flatShading: false,
+            shininess: 30,
+        });
+    let onLoadObj = function (object3d){
+        objLoader2.setModelName(modelName);
+        
+        
+        object3d.traverse(child => {
+            if (child.material) {
+                child.material = material;
+            }
+        });
+        console.log(object3d);
+        scene.add( object3d );
+    }
     let mtlLoader = new MTLLoader();
+    objLoader2.setLogging(CONFIG_DEBUG, CONFIG_DEBUG);
     //mtlLoader.setMaterialOptions({side: THREE.SingleSide});
-    mtlLoader.load("assets/3dmodel/" + modelName + '.mtl', onLoadMtl);
+    //mtlLoader.load("assets/3dmodel/" + modelName + '.mtl', onLoadMtl);
+    objLoader2.load("assets/3dmodel/" + modelName + '.obj',onLoadObj);
 }
 
 
@@ -581,10 +545,8 @@ function initModeloFinal() {
  */
 function luzPrimariaFocal() {
     LuzPrimariaFocal = new THREE.SpotLight(COLOR_LUZCIELO, paramsLuzPrimariaFocal.intensity);
-    //LuzPrimariaFocal.position.set(-10, 130, -10);
-    LuzPrimariaFocal.position.set(0, 220, 0);
+    LuzPrimariaFocal.position.set(-10, 120, -10);
     scene.add(LuzPrimariaFocal);
-    //LuzPrimariaFocal.
     //LuzPrimariaFocal.angle = Math.PI / 2.6;
     //LuzPrimariaFocal.penumbra = 1;
     //LuzPrimariaFocal.power = Math.PI / 1.3;//Default is 4Math.PI. 
@@ -697,14 +659,14 @@ function addPuntoInteres(puntoInteres, secundario) {
     scene.add(circle);
     meshPlacaEspacioCultural.push(circle);
 
-//    var circle2 = new THREE.Mesh(geometriaPuntoInteresSecundario, material);
-//    circle2.position.set(secundario.x, secundario.y, secundario.z);
-//    circle2.rotateX(Math.PI / 2);
-//    circle2.receiveShadow = false;
-//    //circle2.name = puntoInteres.xIdEC +"_SEC";
-//    circle2.name = puntoInteres.xIdEC;
-//    scene.add(circle2);
-//    meshPlacaEspacioCultural.push(circle2);
+    var circle2 = new THREE.Mesh(geometriaPuntoInteresSecundario, material);
+    circle2.position.set(secundario.x, secundario.y, secundario.z);
+    circle2.rotateX(Math.PI / 2);
+    circle2.receiveShadow = false;
+    //circle2.name = puntoInteres.xIdEC +"_SEC";
+    circle2.name = puntoInteres.xIdEC;
+    scene.add(circle2);
+    meshPlacaEspacioCultural.push(circle2);
 }
 
 
@@ -716,17 +678,17 @@ function addPuntoInteres(puntoInteres, secundario) {
  */
 function initPlacasEspaciosCulturales() {
     //puntosInteresECsec
-    geometriaPuntoInteres = new THREE.CircleBufferGeometry(4, 32);
-    //geometriaPuntoInteresSecundario = new THREE.CircleBufferGeometry(1, 32);
-    addPuntoInteres(puntosInteresEC.MUAC,puntosInteresECsec.MUAC);
-    addPuntoInteres(puntosInteresEC.ExplanadaEspiga,puntosInteresECsec.ExplanadaEspiga);
+    geometriaPuntoInteres = new THREE.CircleBufferGeometry(1, 32);
+    geometriaPuntoInteresSecundario = new THREE.CircleBufferGeometry(4, 32);
+    addPuntoInteres(puntosInteresEC.MUAC, puntosInteresECsec.MUAC);
+    //addPuntoInteres(puntosInteresEC.ExplanadaEspiga,puntosInteresECsec.ExplanadaEspiga);
     addPuntoInteres(puntosInteresEC.Cines, puntosInteresECsec.Cines);
-    addPuntoInteres(puntosInteresEC.SalaCarlosChaves,puntosInteresECsec.SalaCarlosChaves);
-    addPuntoInteres(puntosInteresEC.SalaMiguelCovarrubias,puntosInteresECsec.SalaMiguelCovarrubias);
-    addPuntoInteres(puntosInteresEC.SalonDanza,puntosInteresECsec.SalonDanza);
-    addPuntoInteres(puntosInteresEC.TeatroJuanRuiz,puntosInteresECsec.TeatroJuanRuiz);
-    addPuntoInteres(puntosInteresEC.ForoSorJuana,puntosInteresECsec.ForoSorJuana);
-    addPuntoInteres(puntosInteresEC.SalaNeza,puntosInteresECsec.SalaNeza);
+    //addPuntoInteres(puntosInteresEC.SalaCarlosChaves,puntosInteresECsec.SalaCarlosChaves);
+    //addPuntoInteres(puntosInteresEC.SalaMiguelCovarrubias,puntosInteresECsec.SalaMiguelCovarrubias);
+    //addPuntoInteres(puntosInteresEC.SalonDanza,puntosInteresECsec.SalonDanza);
+    //addPuntoInteres(puntosInteresEC.TeatroJuanRuiz,puntosInteresECsec.TeatroJuanRuiz);
+    //addPuntoInteres(puntosInteresEC.ForoSorJuana,puntosInteresECsec.ForoSorJuana);
+    //addPuntoInteres(puntosInteresEC.SalaNeza,puntosInteresECsec.SalaNeza);
 }
 
 /**
@@ -906,9 +868,11 @@ function render() {
 function initEscena() {
     scene = new THREE.Scene();
     //scene.background = new THREE.Color( 0xcccccc );
-    renderer = new THREE.WebGLRenderer({antialias: true});
-//    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio(window.devicePixelRatio);
+    //renderer = new THREE.WebGLRenderer({antialias: true});
+    //renderer = new THREE.WebGLRenderer();
+    renderer = new CSS3DRenderer();
+
+    //renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     //renderer.toneMapping = THREE.LinearToneMapping;
@@ -938,7 +902,7 @@ function initEscena() {
  * @since 20-07-24
  * Malla
  */
-function objMalla() {
+function initMalla() {
     var helper = new THREE.GridHelper(286, 286);
     helper.material.opacity = 1;
     helper.material.transparent = false;
@@ -949,8 +913,9 @@ function objMalla() {
  * @edit 20-07-25
  * Círuclo simple
  */
-function objPisoCircular() {
-    var geometry = new THREE.CircleBufferGeometry(350, 60);
+function initPisoCircular() {
+
+    var geometry = new THREE.CircleBufferGeometry(300, 20);
     //var material = new THREE.MeshStandardMaterial( {color: "darkolivegreen", side: THREE.DoubleSide} );
     //var material = new THREE.MeshStandardMaterial( {COLOR_TIERRA );
     var material = new THREE.MeshStandardMaterial({color: COLOR_TIERRA});
