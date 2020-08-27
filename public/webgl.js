@@ -109,7 +109,7 @@ var coordCentro = {
  * @since 20-08-18
  */
 var puntosInteresEC = {
-    "MUAC": {x: -80, y: 18, z: -90, "icono": "IC_MUAC.png", "xIdEC": "MUAC2"}
+    "MUAC": {x: -80, y: 18, z: -90, "icono": "IC_MUAC.png", "xIdEC": "MUAC"}
     , "ExplanadaEspiga": {x: -70, y: 12, z: -50, "icono": "IC_ExplanadaEspiga.png", "xIdEC": "ExplanadaEspiga"}
     , "Cines": {x: -65, y: 18, z: 3, "icono": "IC_Cines.png", "xIdEC": "Cines"}
     , "SalaCarlosChaves": {x: -20, y: 18, z: 28, "icono": "IC_SalaCarlosChaves.png", "xIdEC": "SalaCarlosChaves"}
@@ -193,7 +193,7 @@ function init() {
      */
     camaraFinal();
     //camaraDesarrollo();
-    
+
     /**
      * Mundo
      */
@@ -345,9 +345,9 @@ function camaraControlesOrbitales() {
     ControlesOrbitales.minDistance = 10;
     ControlesOrbitales.maxDistance = 200;
 
-    ControlesOrbitales.maxPolarAngle = Math.PI/1.9;
-    
-    
+    ControlesOrbitales.maxPolarAngle = Math.PI / 1.9;
+
+
     ControlesOrbitales.target.x = -41;
     ControlesOrbitales.target.y = 15;
     ControlesOrbitales.target.z = -36;
@@ -363,7 +363,7 @@ function camaraDesarrollo() {
 //    camera.position.z = -10 - 10;
     camera.position.x = coordCentro.x;
     camera.position.y = coordCentro.y;
-    camera.position.z = coordCentro.z+200;
+    camera.position.z = coordCentro.z + 200;
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
         scene.add(cameraHelper);
@@ -414,8 +414,8 @@ function setControlesOrbitalesDPR() {
     ControlesOrbitales.minDistance = 5;
     ControlesOrbitales.maxDistance = 15;
     ControlesOrbitales.target.x = -43;
-     ControlesOrbitales.target.y = 10;
-     ControlesOrbitales.target.z = -43;
+    ControlesOrbitales.target.y = 10;
+    ControlesOrbitales.target.z = -43;
     //ControlesOrbitales.
     CustomTarget.x = ControlesOrbitales.target.x;
     CustomTarget.y = ControlesOrbitales.target.y;
@@ -437,7 +437,7 @@ function camaraControlesOrbitalesDesarrollo() {
     ControlesOrbitales.target.x = coordCentro.x;
     ControlesOrbitales.target.y = coordCentro.y;
     ControlesOrbitales.target.z = coordCentro.z;
-    
+
     ControlesOrbitales.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
     ControlesOrbitales.dampingFactor = 0.05;
 
@@ -718,15 +718,15 @@ function initPlacasEspaciosCulturales() {
     //puntosInteresECsec
     geometriaPuntoInteres = new THREE.CircleBufferGeometry(4, 32);
     //geometriaPuntoInteresSecundario = new THREE.CircleBufferGeometry(1, 32);
-    addPuntoInteres(puntosInteresEC.MUAC,puntosInteresECsec.MUAC);
-    addPuntoInteres(puntosInteresEC.ExplanadaEspiga,puntosInteresECsec.ExplanadaEspiga);
+    addPuntoInteres(puntosInteresEC.MUAC, puntosInteresECsec.MUAC);
+    addPuntoInteres(puntosInteresEC.ExplanadaEspiga, puntosInteresECsec.ExplanadaEspiga);
     addPuntoInteres(puntosInteresEC.Cines, puntosInteresECsec.Cines);
-    addPuntoInteres(puntosInteresEC.SalaCarlosChaves,puntosInteresECsec.SalaCarlosChaves);
-    addPuntoInteres(puntosInteresEC.SalaMiguelCovarrubias,puntosInteresECsec.SalaMiguelCovarrubias);
-    addPuntoInteres(puntosInteresEC.SalonDanza,puntosInteresECsec.SalonDanza);
-    addPuntoInteres(puntosInteresEC.TeatroJuanRuiz,puntosInteresECsec.TeatroJuanRuiz);
-    addPuntoInteres(puntosInteresEC.ForoSorJuana,puntosInteresECsec.ForoSorJuana);
-    addPuntoInteres(puntosInteresEC.SalaNeza,puntosInteresECsec.SalaNeza);
+    addPuntoInteres(puntosInteresEC.SalaCarlosChaves, puntosInteresECsec.SalaCarlosChaves);
+    addPuntoInteres(puntosInteresEC.SalaMiguelCovarrubias, puntosInteresECsec.SalaMiguelCovarrubias);
+    addPuntoInteres(puntosInteresEC.SalonDanza, puntosInteresECsec.SalonDanza);
+    addPuntoInteres(puntosInteresEC.TeatroJuanRuiz, puntosInteresECsec.TeatroJuanRuiz);
+    addPuntoInteres(puntosInteresEC.ForoSorJuana, puntosInteresECsec.ForoSorJuana);
+    addPuntoInteres(puntosInteresEC.SalaNeza, puntosInteresECsec.SalaNeza);
 }
 
 /**
@@ -970,55 +970,20 @@ function objPisoCircular() {
  * @returns {onDocumentMouseDown}
  */
 function onDocumentMouseDown(event) {
-    //console.log("click");
-
     event.preventDefault();
-    //mouse.x = (event.clientX / renderer.domElement.width) * 2 - 1;
-    //mouse.y = (event.clientY / renderer.domElement.height) * 2 - 1;
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
     raycaster.setFromCamera(mouse, camera);
-
     var intersects = raycaster.intersectObjects(meshPlacaEspacioCultural);
-    //console.log("intersects.length:"+intersects.length);
-    //var color = Math.random() * 0xffffff;
     if (intersects.length > 0) {
         if (intersects[0].object.name) {
             this.name = intersects[0].object.name;
+            
+            
+            console.log(this.name);
+            console.log(intersects[0].object.position);
             window.parent.postMessage(this.name, "*");
-//            switch (this.name) {
-//                case "MUAC":
-//                    puntoInteres = 
-//                    break;
-//            }
             moveCameraTo(intersects[0].object);
-
-
-        }
-        switch (intersects[0].object.name) {
-            case "Piso2":
-                break;
-            case "ExplanadaEspiga2":
-                this.name = intersects[0].object.name;
-                //window.parent.postMessage(this.name, 'http://dvlp.d');
-                break;
-            default:
-                //intersects[0].object.material.color.setHex(color);
-                //this.temp = intersects[0].object.material.color.getHexString();
-                this.name = intersects[0].object.name;
-                console.log(this.name);
-                console.log(intersects[0].object.position);
-
-                //doc.functionTest(intersects[0].object.name);
-                //var modalBody = doc.getElementsByClassName("modal-body"); 
-                //modalBody.innerHTML = "<p>"+intersects[0].object.name+"</p>";
-                //window.parent.postMessage(this.name, 'http://dvlp.d');
-                //$("#SingleModal .modal-body").html("<p>"+intersects[0].object.name+"</p>");
-                //$('#SingleModal').modal('show');
-                //var modalById = doc.getElementById("SingleModal");
-                //modalById.modal('show');
-                break;
         }
     }
 }

@@ -53,16 +53,23 @@ $relRueyac['SalaNeza'] = 0;
                             height: 100%;
                             border: none;
                         }*/
-            #framePrincipal {
-                /*display: block;*/
+            #framePrincipalDPR {
+                display: block;
                 border: none;
                 position: relative;
                 left: 0px;
                 width: 100%;
                 /*top: 50px;*/
-                /*height: 90%;*/
-                height: 90vh;
-                /*overflow: hidden;*/
+                height: 100%;
+                /*height: 90vh;*/
+                overflow: hidden;
+            }
+            #framePrincipal {
+                display: block;       /* iframes are inline by default */
+                background: #000;
+                border: none;         /* Reset default border */
+                height: 100vh;        /* Viewport-relative units */
+                width: 100vw;
             }
             #frameSecundario{
                 display: block;
@@ -77,61 +84,6 @@ $relRueyac['SalaNeza'] = 0;
         <title>Demo Recorrido Virtual</title>
     </head>
     <body>
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Demo Recorrido Virtual</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onClick="displayModal('MUAC');">MUAC</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onClick="displayModal('ExplanadaEspiga');">ExplanadaEspiga</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('Cines');">Cines</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('SalaCarlosChaves');">SalaCarlosChaves</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('SalaMiguelCovarrubias');">SalaMiguelCovarrubias</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('SalonDanza');">SalonDanza</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('TeatroJuanRuiz');">TeatroJuanRuiz</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('ForoSorJuana');">ForoSorJuana</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onClick="displayModal('SalaNeza');">SalaNeza</a>
-                    </li>
-
-                </ul>
-<!--                <span class="navbar-text">
-                    Demo desarrollado por Innova Indie.
-                </span>-->
-            </div>
-            <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Usuario RUEyAC
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Ingresar</a>
-                    <a class="dropdown-item" href="#">Salir</a>
-                </div>
-            </div>
-        </nav>
-
-        <!--        <h1>Hello, world!</h1>-->
-
         <iframe id="framePrincipal" src="loader_0.php" allowfullscreen allowvr onmousewheel=""></iframe>
 
         <div id="SingleModal2" class="modal fade" tabindex="-1" role="dialog">
@@ -143,7 +95,7 @@ $relRueyac['SalaNeza'] = 0;
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    
+
                     <div class="modal-body row">
                         <iframe id="frameSecundario" src="loader360.php?IDx_EC=none" allowfullscreen allowvr onmousewheel=""></iframe>
                     </div>
@@ -153,7 +105,6 @@ $relRueyac['SalaNeza'] = 0;
                 </div>
             </div>
         </div>
-
         <!--    $('#myModal').modal('show')    -->
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -167,19 +118,14 @@ $relRueyac['SalaNeza'] = 0;
                                 show: false
                             });
                             function displayModal(name) {
-                                switch (name) {
-                                    case "ExplanadaEspiga":
-                                    case "MUAC":
-                                        var modal = $("#SingleModal2");
-                                        modal.find('.modal-title').text(name);
-                                        $("#SingleModal2").modal('toggle');
+                                var modal = $("#SingleModal2");
+                                modal.find('.modal-title').text(name);
+                                $("#SingleModal2").modal('toggle');
 //                                        var new_url = "loader360.php?IDx_EC=" + name;
-                                        var new_url = "loaderEC.php?IDx_EC=" + name;
-                                        document.getElementById('frameSecundario').contentWindow.location.replace(new_url);
-                                        break;
-                                }
-
+                                var new_url = "loaderEC.php?IDx_EC=" + name;
+                                document.getElementById('frameSecundario').contentWindow.location.replace(new_url);
                             }
+                            ;
                             window.addEventListener('message', function (e) {
                                 displayModal(e.data);
                             });
