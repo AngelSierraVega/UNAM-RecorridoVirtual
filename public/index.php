@@ -84,7 +84,7 @@ $relRueyac['SalaNeza'] = 0;
         <title>Demo Recorrido Virtual</title>
     </head>
     <body>
-        <iframe id="framePrincipal" src="loader_0.php" allowfullscreen allowvr onmousewheel=""></iframe>
+        <iframe id="framePrincipal" src="loaderModelo3d.php" allowfullscreen allowvr onmousewheel=""></iframe>
 
         <div id="SingleModal2" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">

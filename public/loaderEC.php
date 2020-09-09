@@ -4,7 +4,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-$conn = mysqli_connect('localhost', 'root', '') or die("Error, conexion");
+$conn = mysqli_connect('localhost', 'root', '') or die("Base de datos no conectada");
 //$conn = mysqli_connect($localIP,'grupoind','') or die("Error, conexion");
 $bd = mysqli_select_db($conn, 'grupoind_data') or die("Error, Base de datos");
 mysqli_set_charset($conn, 'utf8');

@@ -28,10 +28,9 @@ const COLOR_LUZCIELO = "azure";//Light Cyan
 const COLOR_LUZFONDO = "lightblue";//"aliceblue"
 
 //import default from '/UNAM/RecorridoVirtual/public/modules/luces.js';
-
-
 import * as THREE from '/UNAM/RecorridoVirtual/build/three.module.js';
-
+//import * as CameraControls from '/UNAM/RecorridoVirtual/build/camera-controls.js';
+//CameraControls.install( { THREE: THREE } );
 /**
  * Code for hemispheric light
  * @edit 20-07-15
@@ -56,7 +55,8 @@ import { GUI } from '/UNAM/RecorridoVirtual/jsm/libs/dat.gui.module.js';
  */
 //import { RGBELoader } from '/UNAM/RecorridoVirtual/jsm/loaders/RGBELoader.js';
 
-var camera, ControlesOrbitales, scene, renderer;
+var camera;
+var ControlesOrbitales, scene, renderer;
 
 
 
@@ -95,6 +95,35 @@ var CustomTarget = {
 /**
  * 
  * @type type
+ * @since 20-08-27
+ */
+var LimitesCamara = {
+    xMin: -120 - 40,
+    xMax: 200 + 40,
+    yMax: 25,
+    yMin: 12,
+    zMax: 160 + 40,
+    zMin: -180 - 40
+}
+
+/**
+ * 
+ * @type type
+ * @since 20-08-27
+ */
+var paramsCamara = {
+    'TargetX': 0,
+    'TargetY': 0,
+    'TargetZ': 0
+    , 'FOV': 45
+    , 'CamaraX': 0
+    , 'CamaraY': 0
+    , 'CamaraZ': 0
+};
+
+/**
+ * 
+ * @type type
  * @since 20-08-26
  */
 var coordCentro = {
@@ -102,6 +131,8 @@ var coordCentro = {
     , "y": -50
     , "z": 15
 };
+
+var spinLoader;
 
 /**
  * 
@@ -180,14 +211,13 @@ init();
 animate();
 
 
-
-
-
 /**
  * @since 20-05-20
  */
 function init() {
+    
     initEscena();
+    
     /**
      * Camara
      */
@@ -197,7 +227,7 @@ function init() {
     /**
      * Mundo
      */
-    objPisoCircular();
+    //objPisoCircular();
     initPlacasEspaciosCulturales();
     if (CONFIG_HELPERS) {
         objMalla();
@@ -265,12 +295,7 @@ function init() {
  * @since 19-08-20
  */
 function createPanel() {
-    var paramsGui = {
-        'TargetX': 0,
-        'TargetY': 0,
-        'TargetZ': 0
-        , 'FOV': 45
-    };
+
     //var panel = new GUI();
     panel = new GUI({width: 310});
 
@@ -278,10 +303,13 @@ function createPanel() {
     var folder2 = panel.addFolder('Cámara');
     var folder3 = panel.addFolder('Luz Primaria Focal')
 
-    folder2.add(paramsGui, 'TargetX').listen();
-    folder2.add(paramsGui, 'TargetY').listen();
-    folder2.add(paramsGui, 'TargetZ').listen();
-    folder2.add(paramsGui, 'FOV', 10, 90).listen().onChange(function (value) {
+    folder2.add(paramsCamara, 'TargetX').listen();
+    folder2.add(paramsCamara, 'TargetY').listen();
+    folder2.add(paramsCamara, 'TargetZ').listen();
+    folder2.add(paramsCamara, 'CamaraX').listen();
+    folder2.add(paramsCamara, 'CamaraY').listen();
+    folder2.add(paramsCamara, 'CamaraZ').listen();
+    folder2.add(paramsCamara, 'FOV', 10, 90).listen().onChange(function (value) {
         //render();
         camera.fov = value;
         camera.updateProjectionMatrix();
@@ -318,9 +346,9 @@ function createPanel() {
  */
 function camaraFinal() {
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight);
-    camera.position.x = -120 - 10 - 20;
-    camera.position.y = 35 + 10 + 20 + 20;
-    camera.position.z = -10 - 10;
+    camera.position.x = -158;
+    camera.position.y = 72;
+    camera.position.z = -41;
     //x: , y: 18, z: -50
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
@@ -345,12 +373,12 @@ function camaraControlesOrbitales() {
     ControlesOrbitales.minDistance = 10;
     ControlesOrbitales.maxDistance = 200;
 
-    ControlesOrbitales.maxPolarAngle = Math.PI / 1.9;
+    ControlesOrbitales.maxPolarAngle = Math.PI / 1.6;
 
 
-    ControlesOrbitales.target.x = -41;
+    ControlesOrbitales.target.x = -42;
     ControlesOrbitales.target.y = 15;
-    ControlesOrbitales.target.z = -36;
+    ControlesOrbitales.target.z = -25;
 }
 
 /**
@@ -371,60 +399,6 @@ function camaraDesarrollo() {
     camaraControlesOrbitalesDesarrollo();
 }
 
-/**
- * @since 20-06-20
- */
-function initCamaraToma01DPR() {
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 400);
-    if (CONFIG_HELPERS) {
-        var cameraHelper = new THREE.CameraHelper(camera);
-        scene.add(cameraHelper);
-    }
-}
-
-/**
- * @since 20-06-20
- * @edit 20-07-27
- * @edit 20-08-09
- */
-function initCamaraDPR() {
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 600);
-    camera.position.set(-30, 10, -30);
-    if (CONFIG_HELPERS) {
-        var cameraHelper = new THREE.CameraHelper(camera);
-        scene.add(cameraHelper);
-    }
-    setControlesOrbitales();
-}
-
-/**
- * @since 20-08-09
- * @returns {undefined}
- */
-function setControlesOrbitalesDPR() {
-    ControlesOrbitales = new OrbitControls(camera, renderer.domElement);
-    ControlesOrbitales.addEventListener('change', render); // call this only in static scenes (i.e., if there is no animation loop)
-
-    //ControlesOrbitales.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-    //ControlesOrbitales.dampingFactor = 0.05;
-    //ControlesOrbitales.dampingFactor = 0.1;
-    //ControlesOrbitales.zoom0
-    ControlesOrbitales.screenSpacePanning = false;
-
-    ControlesOrbitales.minDistance = 5;
-    ControlesOrbitales.maxDistance = 15;
-    ControlesOrbitales.target.x = -43;
-    ControlesOrbitales.target.y = 10;
-    ControlesOrbitales.target.z = -43;
-    //ControlesOrbitales.
-    CustomTarget.x = ControlesOrbitales.target.x;
-    CustomTarget.y = ControlesOrbitales.target.y;
-    CustomTarget.z = ControlesOrbitales.target.z;
-
-    ControlesOrbitales.maxPolarAngle = Math.PI / 1.8;
-
-    ControlesOrbitales.enableZoom = true;
-}
 
 /**
  * @since 20-07-12
@@ -849,12 +823,9 @@ function initCamaraTop() {
 
 
 function onWindowResize() {
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
     renderer.setSize(window.innerWidth, window.innerHeight);
-
 }
 /**
  * 
@@ -863,12 +834,34 @@ function onWindowResize() {
  * @edit 20-08-19
  */
 function animate() {
-    requestAnimationFrame(animate);
     ControlesOrbitales.update(); // only required if ControlesOrbitales.enableDamping = true, or if ControlesOrbitales.autoRotate = true
-    animCamera();
+    animCameraTarget();
     animPlacas();
     animPanel();
+    animCameraLimits();
+    animSunsphere();
+    requestAnimationFrame(animate);
     render();
+}
+
+/**
+ * 
+ * @returns {undefined}
+ * @since 20-09-06
+ */
+function animSunsphere() {
+
+    var value = 0.48;
+    if (value < 0.03) {
+        value += 0.05;
+    } else if (value > 0.48) {
+        value -= 0.05;
+    }
+    var theta = Math.PI * (0.12 - 0.5);
+    var phi = 2 * Math.PI * (value - 0.5);//0.48
+    sunSphere.position.x = 400000 * Math.cos(phi);
+    sunSphere.position.y = 400000 * Math.sin(phi) * Math.sin(theta);
+    sunSphere.position.z = 400000 * Math.sin(phi) * Math.cos(theta);
 }
 
 /**
@@ -882,6 +875,10 @@ function animPanel() {
     controlador.object.TargetX = ControlesOrbitales.target.x;
     controlador.object.TargetY = ControlesOrbitales.target.y;
     controlador.object.TargetZ = ControlesOrbitales.target.z;
+
+    controlador.object.CamaraX = camera.position.x;
+    controlador.object.CamaraY = camera.position.y;
+    controlador.object.CamaraZ = camera.position.z;
 }
 
 /**
@@ -895,7 +892,6 @@ function animPlacas() {
 }
 
 function render() {
-
     renderer.render(scene, camera);
 
 }
@@ -978,8 +974,8 @@ function onDocumentMouseDown(event) {
     if (intersects.length > 0) {
         if (intersects[0].object.name) {
             this.name = intersects[0].object.name;
-            
-            
+
+
             console.log(this.name);
             console.log(intersects[0].object.position);
             window.parent.postMessage(this.name, "*");
@@ -1007,82 +1003,151 @@ function moveCameraTo(object) {
 /**
  * 
  * @returns {undefined}
+ * @since 20-08-27
+ */
+function animCameraLimits() {
+    animCameraTargetLimits();
+//    if (camera.position.x > LimitesCamara.xMax) {
+//        camera.position.x = LimitesCamara.xMax;
+//    }
+//    if (camera.position.x < LimitesCamara.xMin) {
+//        camera.position.x = LimitesCamara.xMin;
+//    }
+
+//    if (camera.position.y > LimitesCamara.yMax) {
+//        camera.position.y = LimitesCamara.yMax;
+//    }
+    if (camera.position.y < 4) {
+        camera.position.y = 4;
+    }
+//    if (camera.position.z > LimitesCamara.zMax) {
+//        camera.position.z = LimitesCamara.zMax;
+//    }
+//    if (camera.position.z < LimitesCamara.zMin) {
+//        camera.position.z = LimitesCamara.zMin;
+//    }
+}
+
+/**
+ * 
+ * @returns {undefined}
+ * @since 20-08-27
+ */
+function animCameraTargetLimits() {
+
+    if (ControlesOrbitales.target.x > LimitesCamara.xMax - 50) {
+        ControlesOrbitales.target.x = LimitesCamara.xMax - 50;
+    }
+    if (ControlesOrbitales.target.x < LimitesCamara.xMin + 50) {
+        ControlesOrbitales.target.x = LimitesCamara.xMin + 50;
+    }
+
+    if (ControlesOrbitales.target.y > LimitesCamara.yMax) {
+        ControlesOrbitales.target.y = LimitesCamara.yMax;
+    }
+    if (ControlesOrbitales.target.y < LimitesCamara.yMin) {
+        ControlesOrbitales.target.y = LimitesCamara.yMin;
+    }
+
+    if (ControlesOrbitales.target.z > LimitesCamara.zMax - 50) {
+        ControlesOrbitales.target.z = LimitesCamara.zMax - 50;
+    }
+    if (ControlesOrbitales.target.z < LimitesCamara.zMin + 50) {
+        ControlesOrbitales.target.z = LimitesCamara.zMin + 50;
+    }
+    
+    
+}
+
+/**
+ * 
+ * @returns {undefined}
  * @since 20-08-18
  * @edit 20-08-19
  */
-function animCamera() {
+function animCameraTarget() {
     var changed = false;
     if (CustomTarget.x != null) {
+        changed = true;
         if (CustomTarget.x > ControlesOrbitales.target.x) {
-            changed = true;
+//            changed = true;
             ControlesOrbitales.target.x += CustomTarget.stepX;
             if (ControlesOrbitales.target.x > CustomTarget.x) {
                 ControlesOrbitales.target.x = CustomTarget.x;
                 CustomTarget.x = null;
+                changed = false;
             }
         } else if (CustomTarget.x < ControlesOrbitales.target.x) {
-            changed = true;
+//            changed = true;
             ControlesOrbitales.target.x -= CustomTarget.stepX;
             if (ControlesOrbitales.target.x < CustomTarget.x) {
                 ControlesOrbitales.target.x = CustomTarget.x;
                 CustomTarget.x = null;
+                changed = false;
             }
         }
     }
-
 //    if(CustomTarget.x != ControlesOrbitales.target.x){
 //        ControlesOrbitales.target.x = CustomTarget.x;
 //    }
     if (CustomTarget.y != null) {
+        changed = true;
         if (CustomTarget.y > ControlesOrbitales.target.y) {
-            changed = true;
             ControlesOrbitales.target.y += CustomTarget.stepY;
             if (ControlesOrbitales.target.y > CustomTarget.y) {
                 ControlesOrbitales.target.y = CustomTarget.y;
                 CustomTarget.y = null;
+                changed = false;
             }
         } else if (CustomTarget.y < ControlesOrbitales.target.y) {
-            changed = true;
+            //changed = true;
             ControlesOrbitales.target.y -= CustomTarget.stepY;
             if (ControlesOrbitales.target.y < CustomTarget.y) {
                 ControlesOrbitales.target.y = CustomTarget.y;
                 CustomTarget.y = null;
+                changed = false;
             }
         }
     }
-
 //    if(CustomTarget.y != ControlesOrbitales.target.y){
 //        changed = true;
 //        ControlesOrbitales.target.y = CustomTarget.y;
 //    }
-
     if (CustomTarget.z != null) {
+        changed = true;
         if (CustomTarget.z > ControlesOrbitales.target.z) {
-            changed = true;
+//            changed = true;
             ControlesOrbitales.target.z += CustomTarget.stepZ;
             if (ControlesOrbitales.target.z > CustomTarget.z) {
                 ControlesOrbitales.target.z = CustomTarget.z;
                 CustomTarget.z = null;
+                changed = false;
             }
         } else if (CustomTarget.z < ControlesOrbitales.target.z) {
-            changed = true;
+//            changed = true;
             ControlesOrbitales.target.z -= CustomTarget.stepZ;
             if (ControlesOrbitales.target.z < CustomTarget.z) {
                 ControlesOrbitales.target.z = CustomTarget.z;
                 CustomTarget.z = null;
+                changed = false;
             }
         }
     }
-
 //    if(CustomTarget.z != ControlesOrbitales.target.z){
 //        changed = true;
 //        ControlesOrbitales.target.z = CustomTarget.z;
 //    }
-
     if (changed == true) {
-        //console.log(camera);
-        //console.log(ControlesOrbitales);
+        ControlesOrbitales.maxDistance = 10;
+//console.log(camera);
+//console.log(ControlesOrbitales);
+
+    } else {
+        ControlesOrbitales.maxDistance = 400;
+        camera.updateProjectionMatrix();
+        console.log("TEST");
     }
+    
 }
 
 function initSky() {
