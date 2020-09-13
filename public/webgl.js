@@ -110,15 +110,16 @@ var LimitesCamara = {
  * 
  * @type type
  * @since 20-08-27
+ * @edit 20-09-10
  */
 var paramsCamara = {
-    'TargetX': 0,
-    'TargetY': 0,
-    'TargetZ': 0
-    , 'FOV': 45
-    , 'CamaraX': 0
-    , 'CamaraY': 0
-    , 'CamaraZ': 0
+    'TargetX': -35,
+    'TargetY': 13,
+    'TargetZ': -46
+    , 'FOV': 55
+    , 'CamaraX': -215
+    , 'CamaraY': 93
+    , 'CamaraZ': -75
 };
 
 /**
@@ -146,9 +147,10 @@ var puntosInteresEC = {
     , "SalaCarlosChaves": {x: -20, y: 18, z: 28, "icono": "IC_SalaCarlosChaves.png", "xIdEC": "SalaCarlosChaves"}
     , "SalaMiguelCovarrubias": {x: -43, y: 21, z: 63, "icono": "IC_SalaMiguelCovarrubias.png", "xIdEC": "SalaMiguelCovarrubias"}
     , "SalonDanza": {x: -37, y: 18, z: 89, "icono": "IC_SalonDanza.png", "xIdEC": "SalonDanza"}
-    , "TeatroJuanRuiz": {x: 20, y: 18, z: -55, "icono": "IC_TeatroJuanRuiz.png", "xIdEC": "TeatroJuanRuiz"}
+    , "TeatroJuanRuiz": {x: 22, y: 21, z: 35, "icono": "IC_TeatroJuanRuiz.png", "xIdEC": "TeatroJuanRuiz"}
     , "ForoSorJuana": {x: 23, y: 15, z: 0, "icono": "IC_ForoSorJuana.png", "xIdEC": "ForoSorJuana"}
-    , "SalaNeza": {x: 22, y: 21, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
+    , "SalaNeza": {x: 20, y: 18, z: -55, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
+    , "CentroUniversitarioTeatro": {x: 120, y: 15, z: -40, "icono": "IC_CentroUniversitarioTeatro.png", "xIdEC": "CentroUniversitarioTeatro"}    
 };
 
 var puntosInteresECsec = {
@@ -161,6 +163,7 @@ var puntosInteresECsec = {
     , "TeatroJuanRuiz": {x: 20, y: 18, z: -55, "icono": "IC_TeatroJuanRuiz.png", "xIdEC": "TeatroJuanRuiz"}
     , "ForoSorJuana": {x: 23, y: 18, z: 0, "icono": "IC_ForoSorJuana.png", "xIdEC": "ForoSorJuana"}
     , "SalaNeza": {x: 22, y: 18, z: 35, "icono": "IC_SalaNeza.png", "xIdEC": "SalaNeza"}
+    , "CentroUniversitarioTeatro": {x: 0, y: 0, z: 0, "icono": "IC_CentroUniversitarioTeatro.png", "xIdEC": "CentroUniversitarioTeatro"}  
 };
 
 /**
@@ -207,6 +210,9 @@ var Fondo;
 
 var sky, sunSphere;
 
+var valueSunsphere = 0.03;//
+var directionNegative = true;
+
 init();
 animate();
 
@@ -228,7 +234,7 @@ function init() {
      * Mundo
      */
     //objPisoCircular();
-    initPlacasEspaciosCulturales();
+    objPuntosSeleccion();
     if (CONFIG_HELPERS) {
         objMalla();
     }
@@ -269,7 +275,11 @@ function init() {
 
     //gui.
 
-    window.addEventListener('click', onDocumentMouseDown, false);
+//    window.addEventListener('click', onDocumentMouseDown, false);
+
+
+
+
     //window.addEventListener("touch", onDocumentMouseDown, false);
 
 //    $(document).on('touchstart', function () {
@@ -345,10 +355,10 @@ function createPanel() {
  * @since 20-06-20
  */
 function camaraFinal() {
-    camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight);
-    camera.position.x = -158;
-    camera.position.y = 72;
-    camera.position.z = -41;
+    camera = new THREE.PerspectiveCamera(paramsCamara.FOV, window.innerWidth / window.innerHeight);
+    camera.position.x = paramsCamara.CamaraX;
+    camera.position.y = paramsCamara.CamaraY;
+    camera.position.z = paramsCamara.CamaraZ;
     //x: , y: 18, z: -50
     if (CONFIG_HELPERS) {
         var cameraHelper = new THREE.CameraHelper(camera);
@@ -376,9 +386,9 @@ function camaraControlesOrbitales() {
     ControlesOrbitales.maxPolarAngle = Math.PI / 1.6;
 
 
-    ControlesOrbitales.target.x = -42;
-    ControlesOrbitales.target.y = 15;
-    ControlesOrbitales.target.z = -25;
+    ControlesOrbitales.target.x = paramsCamara.TargetX;
+    ControlesOrbitales.target.y = paramsCamara.TargetY;
+    ControlesOrbitales.target.z = paramsCamara.TargetZ;
 }
 
 /**
@@ -687,8 +697,9 @@ function addPuntoInteres(puntoInteres, secundario) {
  * @since 20-07-25
  * @edit 20-08-08
  * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
+ * @edit 20-09-10
  */
-function initPlacasEspaciosCulturales() {
+function objPuntosSeleccion() {
     //puntosInteresECsec
     geometriaPuntoInteres = new THREE.CircleBufferGeometry(4, 32);
     //geometriaPuntoInteresSecundario = new THREE.CircleBufferGeometry(1, 32);
@@ -700,7 +711,8 @@ function initPlacasEspaciosCulturales() {
     addPuntoInteres(puntosInteresEC.SalonDanza, puntosInteresECsec.SalonDanza);
     addPuntoInteres(puntosInteresEC.TeatroJuanRuiz, puntosInteresECsec.TeatroJuanRuiz);
     addPuntoInteres(puntosInteresEC.ForoSorJuana, puntosInteresECsec.ForoSorJuana);
-    addPuntoInteres(puntosInteresEC.SalaNeza, puntosInteresECsec.SalaNeza);
+    addPuntoInteres(puntosInteresEC.SalaNeza, puntosInteresECsec.SalaNeza);//
+    addPuntoInteres(puntosInteresEC.CentroUniversitarioTeatro, puntosInteresECsec.CentroUniversitarioTeatro);//CentroUniversitarioTeatro
 }
 
 /**
@@ -850,15 +862,18 @@ function animate() {
  * @since 20-09-06
  */
 function animSunsphere() {
-
-    var value = 0.48;
-    if (value < 0.03) {
-        value += 0.05;
-    } else if (value > 0.48) {
-        value -= 0.05;
+    if (valueSunsphere < 0.03) {
+        directionNegative = false;
+    } else if (valueSunsphere > 0.48) {
+        directionNegative = true;
+    }
+    if(directionNegative){
+        valueSunsphere -= 0.05;
+    }else{
+        valueSunsphere += 0.05;
     }
     var theta = Math.PI * (0.12 - 0.5);
-    var phi = 2 * Math.PI * (value - 0.5);//0.48
+    var phi = 2 * Math.PI * (valueSunsphere - 0.5);//0.48
     sunSphere.position.x = 400000 * Math.cos(phi);
     sunSphere.position.y = 400000 * Math.sin(phi) * Math.sin(theta);
     sunSphere.position.z = 400000 * Math.sin(phi) * Math.cos(theta);
@@ -1143,7 +1158,7 @@ function animCameraTarget() {
 //console.log(ControlesOrbitales);
 
     } else {
-        ControlesOrbitales.maxDistance = 400;
+        ControlesOrbitales.maxDistance = 200;
         camera.updateProjectionMatrix();
         console.log("TEST");
     }

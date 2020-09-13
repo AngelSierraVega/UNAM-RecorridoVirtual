@@ -186,7 +186,7 @@ function init() {
      * Mundo
      */
     initPisoCircular();
-    initPlacasEspaciosCulturales();
+    objPuntosSeleccion();
     if (CONFIG_HELPERS) {
         initMalla();
     }
@@ -675,8 +675,9 @@ function addPuntoInteres(puntoInteres, secundario) {
  * @since 20-07-25
  * @edit 20-08-08
  * @link https://threejs.org/docs/#api/en/geometries/CircleBufferGeometry
+ * @edit 20-09-10
  */
-function initPlacasEspaciosCulturales() {
+function objPuntosInteres() {
     //puntosInteresECsec
     geometriaPuntoInteres = new THREE.CircleBufferGeometry(1, 32);
     geometriaPuntoInteresSecundario = new THREE.CircleBufferGeometry(4, 32);
