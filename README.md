@@ -1,5 +1,7 @@
 **WebGL|Three.js Modelo 3D**
 
+Comentarios GENERALES sobre los archivos, bajo ningún concepto representan una descripción exhaustiva o precisa.
+
 ## index.php
 
 Página de inicio
@@ -42,9 +44,10 @@ Hoja de estilos por defecto de Three.js
 
 Carga del modelo 3d
 
-1. Dentro de assets/3dmodel/ se requieren los archivos CCU3d.obj, CCU3d.mtl y la carpeta CCU3d/ que **Kristell Franco** ha estado trabajando por su lado **como yo he estado trabajando** en el Modelo3d.
-2. Se pueden modificar las constantes para activar o desactivar ciertas características del Render.
-3. Comentar línea 218 y descomentar línea 219 para visualizar modelo final.
+1. Dentro de assets/3dmodel/ se requieren los archivos CCU3d.obj, CCU3d.mtl y la carpeta CCU3d/ que **Kristell Franco** ha estado trabajando por su lado **como yo he estado trabajando** en el Modelo3d. El último modelo que envió tenía problemas.
+2. Dentro de assets/icons/ están preparados los archivos para los puntos de interés, por ahora utilizan *una versión deprecada de mi logotipo*. Uno de los archivos del último lote tenía problemas.
+3. Se pueden modificar las constantes para activar o desactivar ciertas características del Render.
+4. Comentar línea 218 y descomentar línea 219 para visualizar modelo final.
 
 ---
 
@@ -52,5 +55,5 @@ Carga del modelo 3d
 
 Carga de la imagen 360
 
-1. Dentro de assets/foto360/ se requieren los archivos HDRi o JPG de las fotos 360 que *no sé quién* ha estado trabajando *como yo he estado trabajando*.
+1. Dentro de assets/foto360/ se requieren los archivos HDR o JPG de las fotos 360 que *no sé quién* ha estado trabajando *como yo he estado trabajando*. Pese a todo uno hace lo que puede.
 2. Descomentar líneas 44 a 46 para cargar imágen HDR (sin verificar).
