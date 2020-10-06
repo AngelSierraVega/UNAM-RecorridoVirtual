@@ -1,11 +1,15 @@
 <?php
 /**
- * Modelo dummie. Luz omnidireccional. 
- * @since 20-04-24
- * @edit 20-07-24
- * - 
+ * RecorridoVirtual - loader360.php
+ *
+ * @author Angel Sierra Vega <angel.grupoindie.com>
+ * @copyright (C) 2020 Angel Sierra Vega. Grupo INDIE.
+ *
+ * @package UNAM\RecorridoVirtual
+ *
+ * @version 00.50
+ * @since 20-04-27
  */
-
 ?>
 
 <!DOCTYPE html>

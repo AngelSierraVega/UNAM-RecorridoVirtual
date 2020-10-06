@@ -1,13 +1,19 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * RecorridoVirtual - webgl.js
+ *
+ * @author Angel Sierra Vega <angel.grupoindie.com>
+ * @copyright (C) 2020 Angel Sierra Vega. Grupo INDIE.
+ *
+ * @package UNAM\RecorridoVirtual
+ *
+ * @version 00.50
+ * @since 20-??-??
  */
 
 
 import * as THREE from '../build/three.module.js';
 
-//import { RGBELoader } from '../jsm/loaders/RGBELoader.js';
+import { RGBELoader } from '../jsm/loaders/RGBELoader.js';
 
 var camera, scene, renderer;
 
@@ -24,19 +30,9 @@ animate();
 
 function init() {
 
-    //var ifrm = window.frameElement;
-    //var doc = ifrm.ownerDocument;// reference to container's document
-
     var container, mesh;
-    //console.log(IDx_EC);
-
-    //container = doc.getElementById('container');
-    //container = ifrm;
-
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1100);
     camera.target = new THREE.Vector3(0, 0, 0);
-
-    
 
     scene = new THREE.Scene();
 
@@ -44,32 +40,23 @@ function init() {
     // invert the geometry on the x-axis so that all of the faces point inward
     geometry.scale(-1, 1, 1);
     var texture;
-    switch (IDx_EC) {
-        case "ExplanadaEspiga":
-            texture = new THREE.TextureLoader().load('assets/exterior.jpg');
-            break;
-        case "MUAC":
-//            var loader = new RGBELoader();
-//            loader.setDataType(THREE.UnsignedByteType) // alt: FloatType, HalfFloatType
-//            texture = loader.load('assets/exterior.hdr');
-            texture = new THREE.TextureLoader().load('assets/interior.jpg');
-            break;
-    }
+    texture = new THREE.TextureLoader().load('assets/foto360/' + IDx_EC + '.jpg');
+//    var loader = new RGBELoader();
+//    loader.setDataType(THREE.UnsignedByteType) // alt: FloatType, HalfFloatType
+//    texture = loader.load('assets/foto360/' + IDx_EC + '.hdr');
     var material = new THREE.MeshBasicMaterial({map: texture});
-
     mesh = new THREE.Mesh(geometry, material);
-
     scene.add(mesh);
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
+
     //renderer.toneMapping = THREE.ReinhardToneMapping;
     //renderer.toneMappingExposure = 10;
 
     //renderer.outputEncoding = THREE.sRGBEncoding;
-    
+
     //container.appendChild(renderer.domElement);
     document.body.appendChild(renderer.domElement);
 

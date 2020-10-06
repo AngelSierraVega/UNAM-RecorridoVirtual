@@ -1,9 +1,14 @@
 <?php
 /**
- * Modelo dummie. Luz omnidireccional. 
- * @since 20-04-24
- * @edit 20-07-24
- * - 
+ * RecorridoVirtual - loaderModelo3d.php
+ *
+ * @author Angel Sierra Vega <angel.grupoindie.com>
+ * @copyright (C) 2020 Angel Sierra Vega. Grupo INDIE.
+ *
+ * @package UNAM\RecorridoVirtual
+ *
+ * @version 00.50
+ * @since 20-04-27
  */
 
 ?>
@@ -28,7 +33,7 @@
 
     <body>
         <div id="info">
-            <a href="https://facebook.com/InnovaINDIE" target="_blank" rel="noopener">Innova INDIE</a> - demo recorrido virtual
+            <a href="https://grupoindie.com" target="_blank" rel="noopener">Innova INDIE</a> - demo recorrido virtual
         </div>
 
         <script type="module" src="webgl.js">

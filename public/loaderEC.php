@@ -1,11 +1,16 @@
 <?php
 /**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * RecorridoVirtual - loaderEC.php
+ *
+ * @author Angel Sierra Vega <angel.grupoindie.com>
+ * @copyright (C) 2020 Angel Sierra Vega. Grupo INDIE.
+ *
+ * @package UNAM\RecorridoVirtual
+ *
+ * @version 00.50
+ * @since 20-04-27
  */
 $conn = mysqli_connect('localhost', 'root', '') or die("Base de datos no conectada");
-//$conn = mysqli_connect($localIP,'grupoind','') or die("Error, conexion");
 $bd = mysqli_select_db($conn, 'grupoind_data') or die("Error, Base de datos");
 mysqli_set_charset($conn, 'utf8');
 
@@ -25,16 +30,90 @@ $descripcionesEC['SalaNeza'] = "La SalaNeza es...";
 
 $linksEC = [];
 $linksEC['MUAC'] = [
-    "https://www.facebook.com/InnovaINDIE" => "Ir a página de facebook"
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['ExplanadaEspiga'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['Cines'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['SalaCarlosChaves'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['SalaMiguelCovarrubias'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['SalonDanza'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['TeatroJuanRuiz'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['ForoSorJuana'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['ExplanadaEspiga'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
+    , "url" => "Ir a boletos"
+    , "url2" => "Ir a video"
+];
+$linksEC['SalaNeza'] = [
+    "https://www.grupoindie.com" => "Ir a página de facebook"
     , "url" => "Ir a boletos"
     , "url2" => "Ir a video"
 ];
 
 $descripcionEC = isset($descripcionesEC[$xIdEC]) ? $descripcionesEC[$xIdEC] : "NO VALIDO";
 
-
-
-$idxEC = '000000000225';
+switch($xIdEC){
+    case 'MUAC':
+        $idxEC = '000000000225';
+        break;
+    case 'ExplanadaEspiga':
+        $idxEC = '000000000225';
+        break;
+    case 'Cines':
+        $idxEC = '000000000225';
+        break;
+    case 'SalaCarlosChaves':
+        $idxEC = '000000000225';
+        break;
+    case 'SalaMiguelCovarrubias':
+        $idxEC = '000000000225';
+        break;
+    case 'SalonDanza':
+        $idxEC = '000000000225';
+        break;
+    case 'TeatroJuanRuiz':
+        $idxEC = '000000000225';
+        break;
+    case 'ForoSorJuana':
+        $idxEC = '000000000225';
+        break;
+    case 'ExplanadaEspiga':
+        $idxEC = '000000000225';
+        break;
+    case 'SalaNeza':
+        $idxEC = '000000000225';
+        break;
+}
 
 $buscar = $idxEC;
 
@@ -46,11 +125,8 @@ $query_actividades = "SELECT * FROM `documento_digital` WHERE `documento_digital
 $result_actividades = mysqli_query($conn, $query_actividades);
 $row_actividades = $result_actividades->fetch_assoc();
 
-
 $rutaRUEyACoriginal = 'http://srvr.d/rueyac/';
-
 ?>
-
 
 <!doctype html>
 <html lang="es">
@@ -100,15 +176,13 @@ $rutaRUEyACoriginal = 'http://srvr.d/rueyac/';
                         <ul class="list-group list-group-flush">
                             <?php
                             foreach ($linksEC[$xIdEC] as $url => $content) {
-
                                 ?>
                                 <li class="list-group-item list-group-item-action">
                                     <a href="<?= $url; ?>" class="card-link" target="_blank"><?= $content; ?></a>
                                 </li>
-                                <?php
-                            }
-
-                            ?>
+    <?php
+}
+?>
                         </ul>
 
                     </div>

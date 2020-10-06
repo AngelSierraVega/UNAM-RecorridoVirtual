@@ -1,15 +1,15 @@
 <?php
-$relRueyac = [];
-$relRueyac['MUAC'] = 0;
-$relRueyac['ExplanadaEspiga'] = 0;
-$relRueyac['Cines'] = 0;
-$relRueyac['SalaCarlosChaves'] = 0;
-$relRueyac['SalaMiguelCovarrubias'] = 0;
-$relRueyac['SalonDanza'] = 0;
-$relRueyac['TeatroJuanRuiz'] = 0;
-$relRueyac['ForoSorJuana'] = 0;
-$relRueyac['SalaNeza'] = 0;
-
+/**
+ * RecorridoVirtual - index.php
+ *
+ * @author Angel Sierra Vega <angel.grupoindie.com>
+ * @copyright (C) 2020 Angel Sierra Vega. Grupo INDIE.
+ *
+ * @package UNAM\RecorridoVirtual
+ *
+ * @version 00.50
+ * @since 20-04-27
+ */
 ?>
 <!doctype html>
 <html lang="es">
