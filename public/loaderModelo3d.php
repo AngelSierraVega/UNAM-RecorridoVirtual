@@ -33,7 +33,7 @@
 
     <body>
         <div id="info">
-            <a href="https://grupoindie.com" target="_blank" rel="noopener">Innova INDIE</a> - demo recorrido virtual
+            <a href="https://grupoindie.com" target="_blank" rel="noopener">Innova INDIE</a>
         </div>
 
         <script type="module" src="webgl.js">
